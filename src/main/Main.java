@@ -20,7 +20,7 @@ class ThreatActor {
 class Event {
     String name;
     String description;
-    Indicator[] indicator;
+    Indicator[] indicator; 
 }
 
 class Indicator {
@@ -36,27 +36,31 @@ class Indicator {
 
 class IndicatorForm extends JFrame { 
     public IndicatorForm() {
-        setTitle("Add Indicator");
-        setBounds(300, 90, 900, 600);
-        JPanel windowPane = new JPanel();
-        this.add(windowPane);
+        Container container = this.getContentPane();  
+        SpringLayout layout = new SpringLayout();  
+        container.setLayout(layout);  
 
         JLabel reportNumberField = new JLabel("Report Number");
-        reportNumberField.setLocation(50, 50);
-        windowPane.add(reportNumberField);
+        layout.putConstraint(SpringLayout.WEST,reportNumberField,5,SpringLayout.WEST,container); 
+        layout.putConstraint(SpringLayout.NORTH,reportNumberField,5,SpringLayout.NORTH,container); 
+        container.add(reportNumberField);
 
-        JTextField reportNumberValue = new JTextField();
-        reportNumberValue.setColumns(20);
-        reportNumberValue.setLocation(100, 100);
-        windowPane.add(reportNumberValue);
+        JTextField reportNumberValue = new JTextField(15);
+        layout.putConstraint(SpringLayout.WEST,reportNumberValue,5,SpringLayout.EAST,reportNumberField); 
+        layout.putConstraint(SpringLayout.NORTH,reportNumberValue,5,SpringLayout.NORTH,container); 
+        container.add(reportNumberValue);
 
-        /*
         JLabel locationField = new JLabel("Location");
-        windowPane.add(locationField);
+        layout.putConstraint(SpringLayout.WEST,locationField,5,SpringLayout.WEST,container); 
+        layout.putConstraint(SpringLayout.NORTH,locationField,5,SpringLayout.NORTH,container); 
+        container.add(locationField);
 
         JTextField locationValue = new JTextField();
-        windowPane.add(locationValue);
+        layout.putConstraint(SpringLayout.WEST,locationValue,5,SpringLayout.EAST,locationField); 
+        layout.putConstraint(SpringLayout.NORTH,locationValue,5,SpringLayout.NORTH,container); 
+        container.add(locationValue);
 
+        /*
         dateTimeGroup = new JLabel("Date Time Group");
         windowPane.add(dateTimeGroup);
         
@@ -83,23 +87,24 @@ class IndicatorForm extends JFrame {
         
         identificationMethod = new JLabel("Identification Method");        
         windowPane.add(identificationMethod);
-        */
 
         JButton addButton = new JButton("Add");
         addButton.addActionListener(e -> 
             System.out.println("Mouse clicked")
         );
-        // windowPane.add(addButton);
+        windowPane.add(addButton);
 
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setVisible(true);
+        */
     }
-
 }
 
 public class Main {
     public static void main(String[] args) {
         IndicatorForm indicatorForm = new IndicatorForm();
+        indicatorForm.setTitle("Add Indicator");
+        indicatorForm.pack();
+        indicatorForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
+        indicatorForm.setVisible(true); 
     }
 }
 
