@@ -1,5 +1,3 @@
-import java.awt.*;
-import java.awt.event.*;
 import java.time.LocalDateTime;
 import javax.swing.*;
 
@@ -34,33 +32,29 @@ class Indicator {
     String[] techniques; // MITRE ATT&CK
 }
 
-class IndicatorForm extends JFrame { 
-    public IndicatorForm() {
-        Container container = this.getContentPane();  
-        SpringLayout layout = new SpringLayout();  
-        container.setLayout(layout);  
+class Window extends JFrame { 
+    public Window() {
+        JPanel pane = new JPanel(); 
+        pane.setLayout(null); // replace with layout manager
+        this.add(pane);
 
         JLabel reportNumberField = new JLabel("Report Number");
-        layout.putConstraint(SpringLayout.WEST,reportNumberField,5,SpringLayout.WEST,container); 
-        layout.putConstraint(SpringLayout.NORTH,reportNumberField,5,SpringLayout.NORTH,container); 
-        container.add(reportNumberField);
+        reportNumberField.setBounds(10,10,80,25); // x, y, width, height; 10 right, 25 down, 20 long, 25 tall 
+        pane.add(reportNumberField);
 
         JTextField reportNumberValue = new JTextField(15);
-        layout.putConstraint(SpringLayout.WEST,reportNumberValue,5,SpringLayout.EAST,reportNumberField); 
-        layout.putConstraint(SpringLayout.NORTH,reportNumberValue,5,SpringLayout.NORTH,container); 
-        container.add(reportNumberValue);
-
-        JLabel locationField = new JLabel("Location");
-        layout.putConstraint(SpringLayout.WEST,locationField,5,SpringLayout.WEST,container); 
-        layout.putConstraint(SpringLayout.NORTH,locationField,5,SpringLayout.NORTH,container); 
-        container.add(locationField);
-
-        JTextField locationValue = new JTextField();
-        layout.putConstraint(SpringLayout.WEST,locationValue,5,SpringLayout.EAST,locationField); 
-        layout.putConstraint(SpringLayout.NORTH,locationValue,5,SpringLayout.NORTH,container); 
-        container.add(locationValue);
+        reportNumberValue.setBounds(10,10,80,25);
+        pane.add(reportNumberValue);
 
         /*
+        JLabel locationField = new JLabel("Location");
+        locationField.setBounds(10,25,80,25);
+        pane.add(locationField);
+
+        JTextField locationValue = new JTextField(15);
+        locationValue.setBounds(10,25,80,25);
+        pane.add(locationValue);
+
         dateTimeGroup = new JLabel("Date Time Group");
         windowPane.add(dateTimeGroup);
         
@@ -100,11 +94,11 @@ class IndicatorForm extends JFrame {
 
 public class Main {
     public static void main(String[] args) {
-        IndicatorForm indicatorForm = new IndicatorForm();
-        indicatorForm.setTitle("Add Indicator");
-        indicatorForm.pack();
-        indicatorForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
-        indicatorForm.setVisible(true); 
+        Window window = new Window();
+        window.setTitle("Add Indicator");
+        window.setSize(375,400);
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
+        window.setVisible(true); 
     }
 }
 
