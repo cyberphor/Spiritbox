@@ -1,5 +1,6 @@
-# spiritbox
+# Spiritbox
 ![GitHub](https://img.shields.io/github/license/cyberphor/spiritbox)  
+Spiritbox is a Cyber Threat Intelligence (CTI) server written in Go. 
 
 ```bash
 # EXAMPLE USE CASE
