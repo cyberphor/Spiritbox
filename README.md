@@ -1,4 +1,5 @@
 # spiritbox
+![GitHub](https://img.shields.io/github/license/cyberphor/spiritbox)  
 
 ```bash
 # EXAMPLE USE CASE
@@ -15,3 +16,6 @@ numberofSystemsAffected: 1
 actionsTaken: Blocked IP address at perimeter firewall
 identificationMethod: Palo Alto firewall
 ```
+
+### Copyright
+This project is licensed under the terms of the [MIT license](/LICENSE).
