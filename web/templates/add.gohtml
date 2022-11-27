@@ -1,0 +1,152 @@
+{{ template "header" }}
+
+<div class="d-flex align-items-center justify-content-center">
+    <div class="container">
+        <h2>Spiritbox</h2>
+        <form>
+        <div class="form-group row">
+            <label class="col-4 col-form-label" for="location">Location</label> 
+            <div class="col-8">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <i class="fa fa-map-marker"></i>
+                </div>
+                </div> 
+                <input id="location" name="location" placeholder="Ziwa" type="text" class="form-control" required="required">
+            </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="dateTimeGroup" class="col-4 col-form-label">Date Time Group</label> 
+            <div class="col-8">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <i class="fa fa-calendar"></i>
+                </div>
+                </div> 
+                <input id="dateTimeGroup" name="dateTimeGroup" placeholder="12 NOV 1000 2022 UTC" type="text" class="form-control" required="required">
+            </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="tactic" class="col-4 col-form-label">MITRE ATT&amp;CK Tactic</label> 
+            <div class="col-8">
+            <select id="tactic" name="tactic" class="custom-select" required="required">
+                <option value="reconnaissance">Reconnaissance</option>
+                <option value="exploitation">Exploitation</option>
+            </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="sourceIpAddress" class="col-4 col-form-label">Source IP Address</label> 
+            <div class="col-8">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <i class="fa fa-laptop"></i>
+                </div>
+                </div> 
+                <input id="sourceIpAddress" name="sourceIpAddress" placeholder="221.192.199.49" type="text" class="form-control" required="required">
+            </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="text" class="col-4 col-form-label">Source Hostname</label> 
+            <div class="col-8">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <i class="fa fa-laptop"></i>
+                </div>
+                </div> 
+                <input id="text" name="text" placeholder="XYZ5000DC" type="text" class="form-control">
+            </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="destinationIpAddress" class="col-4 col-form-label">Destination IP Address</label> 
+            <div class="col-8">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <i class="fa fa-laptop"></i>
+                </div>
+                </div> 
+                <input id="destinationIpAddress" name="destinationIpAddress" placeholder="192.168.1.69" type="text" class="form-control" required="required">
+            </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="sourceHostname" class="col-4 col-form-label">Destination Hostname</label> 
+            <div class="col-8">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <i class="fa fa-laptop"></i>
+                </div>
+                </div> 
+                <input id="sourceHostname" name="sourceHostname" placeholder="XYZ5000DC" type="text" class="form-control">
+            </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-4">Direction</label> 
+            <div class="col-8">
+            <div class="custom-control custom-radio custom-control-inline">
+                <input name="direction" id="direction_0" type="radio" required="required" class="custom-control-input" value="inbound"> 
+                <label for="direction_0" class="custom-control-label">Inbound</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input name="direction" id="direction_1" type="radio" required="required" class="custom-control-input" value="lateral"> 
+                <label for="direction_1" class="custom-control-label">Lateral</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input name="direction" id="direction_2" type="radio" required="required" class="custom-control-input" value="outbound"> 
+                <label for="direction_2" class="custom-control-label">Outbound</label>
+            </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="numberOfSystemsAffected" class="col-4 col-form-label">Number of Systems Affected</label> 
+            <div class="col-8">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <i class="fa fa-group"></i>
+                </div>
+                </div> 
+                <input id="numberOfSystemsAffected" name="numberOfSystemsAffected" placeholder="1" type="text" class="form-control" required="required">
+            </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="actionsTaken" class="col-4 col-form-label">Actions Taken</label> 
+            <div class="col-8">
+            <textarea id="actionsTaken" name="actionsTaken" cols="40" rows="3" class="form-control"></textarea>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="identificationMethod" class="col-4 col-form-label">Identification Method</label> 
+            <div class="col-8">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <i class="fa fa-binoculars"></i>
+                </div>
+                </div> 
+                <input id="identificationMethod" name="identificationMethod" placeholder="Network Firewall" type="text" class="form-control" required="required">
+            </div>
+            </div>
+        </div> 
+        <div class="form-group row">
+            <div class="offset-4 col-8">
+            <button name="submit" type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+
+{{ template "footer" }}

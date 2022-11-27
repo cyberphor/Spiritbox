@@ -12,20 +12,37 @@ func init() {
 	templates = template.Must(template.ParseGlob("web/templates/*"))
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
+func indexHandler(w http.ResponseWriter, r *http.Request) {
 	templates.ExecuteTemplate(w, "index.gohtml", nil)
 }
 
-func search(w http.ResponseWriter, r *http.Request) {
+func addHandler(w http.ResponseWriter, r *http.Request) {
+	templates.ExecuteTemplate(w, "add.gohtml", nil)
+}
+
+func add(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Redirect(w, r, "/", http.StatusMethodNotAllowed)
 	} else {
 		err := r.ParseForm()
 		if err != nil {
-			// TODO: add middleware
-			fmt.Println("Form parsing error")
+			panic(err)
 		}
-		query := r.PostFormValue("search")
+		query := r.PostFormValue("")
+		fmt.Println(query)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+}
+
+func search(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Redirect(w, r, "/", http.StatusMethodNotAllowed)
+	} else {
+		err := r.ParseForm()
+		if err != nil {
+			panic(err)
+		}
+		query := r.FormValue("search")
 		fmt.Println(query)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}

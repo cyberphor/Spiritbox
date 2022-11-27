@@ -6,10 +6,12 @@ import (
 
 func Server() {
 	root := http.Dir("web/")
-	static := http.FileServer(root)
+	staticFileServer := http.FileServer(root)
 	mux := http.NewServeMux()
+	mux.HandleFunc("/add.html", addHandler)
+	mux.HandleFunc("/add", add)
 	mux.HandleFunc("/search", search)
-	mux.Handle("/static/", static)
-	mux.HandleFunc("/", index)
+	mux.Handle("/static/", staticFileServer)
+	mux.HandleFunc("/", indexHandler)
 	http.ListenAndServe(":80", mux)
 }

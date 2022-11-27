@@ -2,6 +2,8 @@
 ![GitHub](https://img.shields.io/github/license/cyberphor/spiritbox)  
 Spiritbox is a Cyber Threat Intelligence (CTI) server written in Go. 
 
+![spiritbox](/screenshot.png)  
+
 ```bash
 # EXAMPLE USE CASE
 reportNumber: C9L-001
@@ -17,6 +19,10 @@ numberofSystemsAffected: 1
 actionsTaken: Blocked IP address at perimeter firewall
 identificationMethod: Palo Alto firewall
 ```
+
+### TODO
+- [ ] Heatmap/feed interface
+- [ ] Chat function
 
 ### Copyright
 This project is licensed under the terms of the [MIT license](/LICENSE).
