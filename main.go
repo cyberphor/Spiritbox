@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	database.AddTable()
+	database.Server()
 	web.Server()
 }

@@ -5,10 +5,11 @@ import (
 )
 
 func Server() {
-	filePath := http.Dir("web/")
-	fileServer := http.FileServer(filePath)
-	http.Handle("/static/", fileServer)
-	http.HandleFunc("/search", search)
-	http.HandleFunc("/", index) // if all else fails, send them here
-	http.ListenAndServe(":443", nil)
+	root := http.Dir("web/")
+	static := http.FileServer(root)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/search", search)
+	mux.Handle("/static/", static)
+	mux.HandleFunc("/", index)
+	http.ListenAndServe(":80", mux)
 }

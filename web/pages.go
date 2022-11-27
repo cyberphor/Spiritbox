@@ -18,8 +18,15 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 func search(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, "/", http.StatusMethodNotAllowed)
 	} else {
-		fmt.Println("Searching...")
+		err := r.ParseForm()
+		if err != nil {
+			// TODO: add middleware
+			fmt.Println("Form parsing error")
+		}
+		query := r.PostFormValue("search")
+		fmt.Println(query)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }
