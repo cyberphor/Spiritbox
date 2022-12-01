@@ -34,6 +34,24 @@ func add(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func editHandler(w http.ResponseWriter, r *http.Request) {
+	templates.ExecuteTemplate(w, "edit.gohtml", nil)
+}
+
+func edit(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Redirect(w, r, "/", http.StatusMethodNotAllowed)
+	} else {
+		err := r.ParseForm()
+		if err != nil {
+			panic(err)
+		}
+		query := r.PostFormValue("")
+		fmt.Println(query)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+}
+
 func search(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Redirect(w, r, "/", http.StatusMethodNotAllowed)
