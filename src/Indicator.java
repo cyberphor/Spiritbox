@@ -9,6 +9,8 @@ public class Indicator {
     public void getValue() { System.out.println(this.Value); }
     public void setValue(String value) { this.Value = value; }
 
+    private enum Direction { INBOUND, OUTBOUND };
+
     private LocalDateTime LastSeen;
     public void getLastSeen() { System.out.println(this.LastSeen); }
     public void setLastSeen(LocalDateTime lastSeen) { this.LastSeen = lastSeen; }
