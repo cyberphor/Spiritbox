@@ -15,9 +15,6 @@ public class Frame extends JFrame {
 
     JLabel lbWelcome;
 
-    /**
-     * 
-     */
     public void init() {
         JLabel lbNumber = new JLabel("Number");
         tfNumber = new JTextField();
@@ -40,11 +37,10 @@ public class Frame extends JFrame {
         formPanel.add(tfNumber);
         formPanel.add(lbDateTimeGroup);
         formPanel.add(tfDateTimeGroup);
-
-        /*
         formPanel.add(lbLocation);
         formPanel.add(tfLocation);
 
+        /*
         formPanel.add(lbSystemsAffected);
         formPanel.add(tfSystemsAffected);
 
@@ -59,7 +55,9 @@ public class Frame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String number = tfNumber.getText();
-                lbWelcome.setText("Number: " + number);
+                String dateTimeGroup = tfDateTimeGroup.getText();
+                String location = tfLocation.getText();
+                lbWelcome.setText(number);
             }
         });
 
@@ -68,6 +66,8 @@ public class Frame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 tfNumber.setText("");
+                tfDateTimeGroup.setText("");
+                tfLocation.setText("");
                 lbWelcome.setText("");
             }
         });
@@ -79,6 +79,7 @@ public class Frame extends JFrame {
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         mainPanel.add(formPanel, BorderLayout.NORTH);
         mainPanel.add(lbWelcome, BorderLayout.CENTER);
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);

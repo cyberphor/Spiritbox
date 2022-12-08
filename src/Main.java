@@ -21,7 +21,9 @@ public class Main {
         report.indicators.add(indicator);
 
         // get report
-        report.getReport();
+        //report.getReport();
+
+        // show ui
         Frame frame = new Frame();
         frame.init();
     }
