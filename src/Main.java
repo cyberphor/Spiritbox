@@ -22,5 +22,7 @@ public class Main {
 
         // get report
         report.getReport();
+        Frame frame = new Frame();
+        frame.init();
     }
 }
