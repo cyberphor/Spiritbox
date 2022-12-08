@@ -15,6 +15,9 @@ public class Frame extends JFrame {
 
     JLabel lbWelcome;
 
+    /**
+     * 
+     */
     public void init() {
         JLabel lbNumber = new JLabel("Number");
         tfNumber = new JTextField();
@@ -57,7 +60,7 @@ public class Frame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String number = tfNumber.getText();
                 lbWelcome.setText("Number: " + number);
-    
+            }
         });
 
         JButton btCancel = new JButton("Cancel");
