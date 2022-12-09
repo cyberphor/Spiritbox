@@ -15,7 +15,7 @@ public class Frame extends JFrame {
 
     JLabel lbWelcome;
 
-    public void init() {
+    public void initialize() {
         JLabel lbNumber = new JLabel("Number");
         tfNumber = new JTextField();
 
@@ -32,21 +32,18 @@ public class Frame extends JFrame {
         tfActionsTaken = new JTextField();
 
         JPanel formPanel = new JPanel();
-        formPanel.setLayout(new GridLayout(4, 1, 5, 5));
+        // set layout so num of rows = num of form fields
+        formPanel.setLayout(new GridLayout(5, 2, 5, 5));
         formPanel.add(lbNumber);
         formPanel.add(tfNumber);
         formPanel.add(lbDateTimeGroup);
         formPanel.add(tfDateTimeGroup);
         formPanel.add(lbLocation);
         formPanel.add(tfLocation);
-
-        /*
         formPanel.add(lbSystemsAffected);
         formPanel.add(tfSystemsAffected);
-
         formPanel.add(lbActionsTaken);
         formPanel.add(tfActionsTaken);
-        */
 
         lbWelcome = new JLabel();
 
@@ -81,10 +78,11 @@ public class Frame extends JFrame {
         mainPanel.setLayout(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         mainPanel.add(formPanel, BorderLayout.NORTH);
-        mainPanel.add(lbWelcome, BorderLayout.CENTER);
+        //mainPanel.add(lbWelcome, BorderLayout.CENTER);
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
+        setIconImage(new ImageIcon(getClass().getResource("ghost.png")).getImage());
         setTitle("Spiritbox");
         setSize(500,600);
         setMinimumSize(new Dimension(300,400));

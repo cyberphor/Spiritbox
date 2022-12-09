@@ -25,6 +25,6 @@ public class Main {
 
         // show ui
         Frame frame = new Frame();
-        frame.init();
+        frame.initialize();
     }
 }
