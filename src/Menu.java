@@ -5,17 +5,19 @@ import java.nio.channels.AcceptPendingException;
 
 import javax.swing.*;
 
-public class Frame extends JFrame {
-    JTextField 
-        tfNumber, 
-        tfDateTimeGroup, 
-        tfLocation, 
-        tfSystemsAffected, 
-        tfActionsTaken;
-
-    JLabel lbWelcome;
-
+public class Menu extends JFrame {
+    private JComponent makeTextPanel(String string) {
+        return null;
+    }
+    
     public void initialize() {
+        JTextField 
+            tfNumber, 
+            tfDateTimeGroup, 
+            tfLocation, 
+            tfSystemsAffected, 
+            tfActionsTaken;
+
         JLabel lbNumber = new JLabel("Number");
         tfNumber = new JTextField();
 
@@ -45,16 +47,16 @@ public class Frame extends JFrame {
         formPanel.add(lbActionsTaken);
         formPanel.add(tfActionsTaken);
 
-        lbWelcome = new JLabel();
-
         JButton btOK = new JButton("OK");
         btOK.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                /*
                 String number = tfNumber.getText();
                 String dateTimeGroup = tfDateTimeGroup.getText();
                 String location = tfLocation.getText();
                 lbWelcome.setText(number);
+                */
             }
         });
 
@@ -65,7 +67,7 @@ public class Frame extends JFrame {
                 tfNumber.setText("");
                 tfDateTimeGroup.setText("");
                 tfLocation.setText("");
-                lbWelcome.setText("");
+                // lbWelcome.setText("");
             }
         });
 
@@ -74,11 +76,14 @@ public class Frame extends JFrame {
         buttonsPanel.add(btOK);
         buttonsPanel.add(btCancel);
 
+        JTabbedPane tabbedPane = new JTabbedPane();
+        JComponent panel1 = makeTextPanel("Tab 1");
+        tabbedPane.addTab("Tab 1", null, panel1, "Does nothing");
+
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         mainPanel.add(formPanel, BorderLayout.NORTH);
-        //mainPanel.add(lbWelcome, BorderLayout.CENTER);
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
