@@ -1,3 +1,4 @@
+package model;
 import java.time.LocalDateTime;
 
 enum Direction { Inbound, Outbound };

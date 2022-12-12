@@ -1,3 +1,4 @@
+package view.desktop;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -5,14 +6,14 @@ import javax.swing.*;
 
 public class ReportTab extends JPanel {
     public ReportTab() {
-        JPanel form = new JPanel(); // num of rows = num of form fields
+        JPanel form = new JPanel(); 
         form.setLayout(new GridLayout(5, 2, 5, 5)); 
 
-        JLabel lbNumber = new JLabel("Number");
-        form.add(lbNumber);
+        JLabel lbReportNumber = new JLabel("Report Number");
+        form.add(lbReportNumber);
 
-        JTextField tfNumber = new JTextField();
-        form.add(tfNumber);
+        JTextField tfReportNumber = new JTextField();
+        form.add(tfReportNumber);
 
         JLabel lbDateTimeGroup = new JLabel("Date-Time Group");
         form.add(lbDateTimeGroup);
@@ -35,8 +36,10 @@ public class ReportTab extends JPanel {
         JLabel lbActionsTaken = new JLabel("Actions Taken");
         form.add(lbActionsTaken);
 
-        JTextField tfActionsTaken = new JTextField();
-        form.add(tfActionsTaken);
+        JTextArea tfActionsTaken = new JTextArea(1,0);
+        tfActionsTaken.setLineWrap(true);
+        tfActionsTaken.setWrapStyleWord(true);
+        form.add(new JScrollPane(tfActionsTaken));
 
         JButton buttonOK = new JButton("OK");
         buttonOK.addActionListener(new ActionListener() {
@@ -55,7 +58,7 @@ public class ReportTab extends JPanel {
         buttonCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                tfNumber.setText("");
+                tfReportNumber.setText("");
                 tfDateTimeGroup.setText("");
                 tfLocation.setText("");
             }
