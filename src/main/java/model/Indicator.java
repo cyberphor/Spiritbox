@@ -1,4 +1,4 @@
-package model;
+package main.java.model;
 import java.time.LocalDateTime;
 
 public class Indicator {
