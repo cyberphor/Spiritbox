@@ -24,8 +24,8 @@ public class UserInterface {
   private JPanel tab1Buttons;
   private JButton tab1ButtonOK;
   private JButton tab1ButtonCancel;
-  private ActionListener tab1ButtonOKAction;
-  private ActionListener tab1ButtonCancelAction;
+  private ActionListener tab1ButtonOKActionListener;
+  private ActionListener tab1ButtonCancelActionListener;
 
   private void clearTextComponents() {
     for (Component c: tab1Form.getComponents()) {
@@ -35,6 +35,26 @@ public class UserInterface {
         ((JTextArea) c).setText("");
       } 
     }
+  }
+
+  private class tab1ButtonOKActionListener implements ActionListener {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      report.setReportNumber(tfReportNumber.getText());
+      report.setDateTimeGroup(null);
+      report.setLocation(tfLocation.getText());
+      report.setSystemsAffected(null);
+      report.setActionsTaken(tfActionsTaken.getText());
+      System.out.println(report.toString());
+      clearTextComponents();
+    } 
+  }
+
+  private class tab1ButtonCancelActionListener implements ActionListener {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      clearTextComponents();
+    } 
   }
 
   public UserInterface() {
@@ -57,24 +77,8 @@ public class UserInterface {
     tab1Buttons = new JPanel();
     tab1ButtonOK = new JButton("OK");
     tab1ButtonCancel = new JButton("Cancel");
-    tab1ButtonOKAction = new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        report.setReportNumber(tfReportNumber.getText());
-        report.setDateTimeGroup(null);
-        report.setLocation(tfLocation.getText());
-        report.setSystemsAffected(null);
-        report.setActionsTaken(tfActionsTaken.getText());
-        System.out.println(report.toString());
-        clearTextComponents();
-      }
-    };
-    tab1ButtonCancelAction = new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        clearTextComponents();
-      }
-    };
+    tab1ButtonOKActionListener = new tab1ButtonOKActionListener();
+    tab1ButtonCancelActionListener = new tab1ButtonCancelActionListener();
   }
   
   public void display() {
@@ -91,9 +95,9 @@ public class UserInterface {
     tfActionsTaken.setLineWrap(true);
     tfActionsTaken.setWrapStyleWord(true);
     tab1Form.add(tfActionsTaken);
-    tab1ButtonOK.addActionListener(tab1ButtonOKAction);
-    tab1ButtonCancel.addActionListener(tab1ButtonCancelAction);
     tab1Buttons.setLayout(new GridLayout(1, 2, 5, 5));
+    tab1ButtonOK.addActionListener(tab1ButtonOKActionListener);
+    tab1ButtonCancel.addActionListener(tab1ButtonCancelActionListener);
     tab1Buttons.add(tab1ButtonOK);
     tab1Buttons.add(tab1ButtonCancel);
     tab1.setLayout(new BorderLayout());
@@ -101,10 +105,9 @@ public class UserInterface {
     tab1.add(tab1Form, BorderLayout.NORTH);
     tab1.add(tab1Buttons, BorderLayout.SOUTH);
     tabbedPane.addTab("Create", null, tab1, "Create a report");
-    frame.add(tabbedPane);
     frame.setTitle("Spiritbox");
     frame.setIconImage(image);
-    frame.setMinimumSize(new Dimension(300,400));
+    frame.add(tabbedPane);
     frame.setSize(500,600);
     frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     frame.setVisible(true);

@@ -34,6 +34,15 @@ public class Report {
 
   @Override
   public String toString() {
-		return ReportNumber + "," + DateTimeGroup + "," + Location + "," + SystemsAffected + "," + ActionsTaken;
+		String string = String.format("""
+      { 
+        "ReportNumber": "%s",
+        "DateTimeGroup": "null", 
+        "Location": "%s", 
+        "SystemsAffected": "null", 
+        "ActionsTaken": "null"
+      }
+      """, ReportNumber, DateTimeGroup, Location, SystemsAffected, ActionsTaken);
+    return string;
 	}
 }
