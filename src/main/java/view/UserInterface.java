@@ -80,7 +80,7 @@ public class UserInterface {
     lbLocation = new JLabel("Location");
     lbOrganization = new JLabel("Organization");
     lbDetectionMethod = new JLabel("Detection Method");
-    lbTacticDetected = new JLabel("MITRE ATT&CK Tactic Detected");
+    lbTacticDetected = new JLabel("Tactic Detected");
     lbAttackerAddress = new JLabel("Attacker IP Address");
     lbVictimAddress = new JLabel("Victim IP Address");
     lbActionsTaken = new JLabel("Actions Taken");
