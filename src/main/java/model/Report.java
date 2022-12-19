@@ -3,17 +3,17 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Report {
-  private String ReportNumber;
-  private LocalDateTime DateTimeGroup;
-  private String Location;
-  private Integer SystemsAffected;
-  private String ActionsTaken;
+  private String reportNumber;
+  private LocalDateTime dateTimeGroup;
+  private String location;
+  private Integer systemsAffected;
   private ArrayList<Indicator> indicators = new ArrayList<Indicator>();
+  private String actionsTaken;
 
   public void setReportNumber(String reportNumber) {
     // if reportNumber < 1000
     // if reportNumber does not already exist 
-    ReportNumber = "C9L-" + reportNumber; 
+    reportNumber = "C9L-" + reportNumber; 
   }
 
   public void setDateTimeGroup(LocalDateTime dateTimeGroup) { 
@@ -31,18 +31,4 @@ public class Report {
   public void setActionsTaken(String actionsTaken) { 
     ActionsTaken = actionsTaken; 
   }
-
-  @Override
-  public String toString() {
-		String string = String.format("""
-      { 
-        "ReportNumber": "%s",
-        "DateTimeGroup": "null", 
-        "Location": "%s", 
-        "SystemsAffected": "null", 
-        "ActionsTaken": "null"
-      }
-      """, ReportNumber, DateTimeGroup, Location, SystemsAffected, ActionsTaken);
-    return string;
-	}
 }
