@@ -19,7 +19,7 @@ public class UserInterface {
   private JLabel lbAttackerAddress;
   private JLabel lbVictimAddress;
   private JLabel lbActionsTaken;
-  private JTextField tfDateTimeGroup;
+  private JTextField tfDateTimeGroup; // TODO: change to date/time picker
   private JTextField tfLocation;
   private JTextField tfOrganization;
   private JTextField tfDetectionMethod;
@@ -28,7 +28,6 @@ public class UserInterface {
   private JTextField tfVictimAddress;
   private JTextArea taActionsTaken;
   private JScrollPane taActionsTakenScrollPane;
-  private Report report;
   private JPanel tab1Buttons;
   private JButton tab1ButtonSubmit;
   private JButton tab1ButtonCancel;
@@ -57,17 +56,17 @@ public class UserInterface {
   private class tab1ButtonSubmitActionListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-      Report report = new Report();
-      report.setDateTimeGroup();
-      report.setLocation();
-      report.setOrganization();
-      report.setDetectionMethod(); 
-      report.setTacticDetected();
-      report.setAttackerAddress();
-      report.setVictimAddress();
-      report.setActionsTaken();
+      // TODO: add submission error handling
+      Report report = new Report()
+        .setDateTimeGroup()
+        .setLocation()
+        .setOrganization()
+        .setDetectionMethod() 
+        .setTacticDetected()
+        .setAttackerAddress(tfAttackerAddress.getText())
+        .setVictimAddress(tfVictimAddress.getText())
+        .setActionsTaken();
       report.print();
-      displaySubmissionError(null);
     } 
   }
 
@@ -96,7 +95,7 @@ public class UserInterface {
     tfDateTimeGroup = new JTextField();
     tfLocation = new JTextField();
     tfOrganization = new JTextField();
-    tfDetectionMethod = new JTextField();
+    tfDetectionMethod = new JTextField(); // TODO: change to a drop-down menu
     tfTacticDetected = new JTextField();
     tfAttackerAddress = new JTextField();
     tfVictimAddress = new JTextField();
@@ -104,7 +103,6 @@ public class UserInterface {
     taActionsTaken.setLineWrap(true);
     taActionsTaken.setWrapStyleWord(true);
     taActionsTakenScrollPane = new JScrollPane(taActionsTaken);
-    report = new Report();
     tab1Buttons = new JPanel();
     tab1ButtonSubmit = new JButton("Submit");
     tab1ButtonCancel = new JButton("Cancel");
@@ -129,7 +127,7 @@ public class UserInterface {
     tab1Form.add(lbVictimAddress);
     tab1Form.add(tfVictimAddress);
     tab1Form.add(lbActionsTaken); 
-    tab1Form.add(taActionsTakenScrollPane);
+    //tab1Form.add(taActionsTakenScrollPane);
     tab1Buttons.setLayout(new GridLayout(1, 2, 5, 5));
     tab1ButtonSubmit.addActionListener(tab1ButtonSubmitActionListener);
     tab1ButtonCancel.addActionListener(tab1ButtonCancelActionListener);
