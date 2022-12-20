@@ -37,63 +37,70 @@ public class Report {
   public Report setReportNumber() {
     String pattern = "yyMMddHHmmssSS";
     DateTimeFormatter format = DateTimeFormatter.ofPattern(pattern);
-    String number = LocalDateTime.now().format(format);
-    reportNumber = String.format("C9L-%s", number);
+    String reportNumber = LocalDateTime.now().format(format);
+    this.reportNumber = String.format("C9L-%s", reportNumber);
     return this;
   }
 
-  public Report setDateTimeGroup() {
+  public Report setDateTimeGroup(String dateTimeGroup) {
+    this.dateTimeGroup = dateTimeGroup;
     return this;
   }
 
-  public Report setLocation() {
+  public Report setLocation(String location) {
+    this.location = location;
     return this;
   }
 
-  public Report setOrganization() {
+  public Report setOrganization(String organization) {
+    this.organization = organization;
     return this;
   }
   
-  public Report setDetectionMethod() {
+  public Report setDetectionMethod(String detectionMethod) {
+    this.detectionMethod = detectionMethod;
     return this;
   } 
   
-  public Report setTacticDetected() {
+  public Report setTacticDetected(String tacticDetected) {
+    this.tacticDetected = tacticDetected;
     return this;
   }
 
-  public Report setAttackerAddress(String addr) {
-    if (isIp4Address(addr)) {
-        attackerAddress = addr;
+  public Report setAttackerAddress(String attackerAddress) {
+    if (isIp4Address(attackerAddress)) {
+      this.attackerAddress = attackerAddress;
     }
     return this;
   }
 
-  public Report setVictimAddress(String addr) {
-    if (isIp4Address(addr)) {
-        victimAddress = addr;
+  public Report setVictimAddress(String victimAddress) {
+    if (isIp4Address(victimAddress)) {
+        this.victimAddress = victimAddress;
     }
     return this;
   }
 
-  public Report setActionsTaken() {
+  public Report setActionsTaken(String actionsTaken) {
+    this.actionsTaken = actionsTaken;
     return this;
   }
   
   @Override
   public String toString() {
     return String.format("""
-      {
-        "reportNumber": %s,
-        "dateTimeGroup": %s,
-        "location": %s,
-        "organization": %s,
-        "detectionMethod": %s,
-        "tacticDetected": %s,
-        "attackerAddress": %s,
-        "victimAddress": %s,
-        "actionsTaken": %s
-      }""",
+      "{
+        'reportNumber': '%s',
+        'dateTimeGroup': '%s',
+        'location': '%s',
+        'organization': '%s',
+        'detectionMethod': '%s',
+        'tacticDetected': '%s',
+        'attackerAddress': '%s',
+        'victimAddress': '%s',
+        'actionsTaken': '%s'
+      }"
+      """,
         reportNumber, 
         dateTimeGroup,
         location,
@@ -112,5 +119,4 @@ public class Report {
   public Report() {
     setReportNumber();
   }
-
 }

@@ -26,8 +26,7 @@ public class UserInterface {
   private JTextField tfTacticDetected;
   private JTextField tfAttackerAddress;
   private JTextField tfVictimAddress;
-  private JTextArea taActionsTaken;
-  private JScrollPane taActionsTakenScrollPane;
+  private JTextField tfActionsTaken;
   private JPanel tab1Buttons;
   private JButton tab1ButtonSubmit;
   private JButton tab1ButtonCancel;
@@ -58,15 +57,16 @@ public class UserInterface {
     public void actionPerformed(ActionEvent e) {
       // TODO: add submission error handling
       Report report = new Report()
-        .setDateTimeGroup()
-        .setLocation()
-        .setOrganization()
-        .setDetectionMethod() 
-        .setTacticDetected()
+        .setDateTimeGroup(tfDateTimeGroup.getText())
+        .setLocation(tfLocation.getText())
+        .setOrganization(tfOrganization.getText())
+        .setDetectionMethod(tfDetectionMethod.getText()) 
+        .setTacticDetected(tfTacticDetected.getText())
         .setAttackerAddress(tfAttackerAddress.getText())
         .setVictimAddress(tfVictimAddress.getText())
-        .setActionsTaken();
+        .setActionsTaken(tfActionsTaken.getText());
       report.print();
+      clearTextComponents();
     } 
   }
 
@@ -99,10 +99,7 @@ public class UserInterface {
     tfTacticDetected = new JTextField();
     tfAttackerAddress = new JTextField();
     tfVictimAddress = new JTextField();
-    taActionsTaken = new JTextArea(5,1);
-    taActionsTaken.setLineWrap(true);
-    taActionsTaken.setWrapStyleWord(true);
-    taActionsTakenScrollPane = new JScrollPane(taActionsTaken);
+    tfActionsTaken = new JTextField();
     tab1Buttons = new JPanel();
     tab1ButtonSubmit = new JButton("Submit");
     tab1ButtonCancel = new JButton("Cancel");
@@ -127,7 +124,7 @@ public class UserInterface {
     tab1Form.add(lbVictimAddress);
     tab1Form.add(tfVictimAddress);
     tab1Form.add(lbActionsTaken); 
-    //tab1Form.add(taActionsTakenScrollPane);
+    tab1Form.add(tfActionsTaken);
     tab1Buttons.setLayout(new GridLayout(1, 2, 5, 5));
     tab1ButtonSubmit.addActionListener(tab1ButtonSubmitActionListener);
     tab1ButtonCancel.addActionListener(tab1ButtonCancelActionListener);

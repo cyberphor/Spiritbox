@@ -1,6 +1,6 @@
 # Spiritbox
 ![GitHub](https://img.shields.io/github/license/cyberphor/spiritbox)  
-Spiritbox is a Cyber Threat Intelligence (CTI) server written in Java. 
+Spiritbox is a Cyber 9-Line (C9L) reporting tool written in Java. 
 
 ![Screenshot](/screenshot.png)
 
