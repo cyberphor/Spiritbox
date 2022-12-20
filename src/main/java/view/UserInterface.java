@@ -58,7 +58,16 @@ public class UserInterface {
     @Override
     public void actionPerformed(ActionEvent e) {
       Report report = new Report();
-      System.out.println(report);
+      report.setDateTimeGroup();
+      report.setLocation();
+      report.setOrganization();
+      report.setDetectionMethod(); 
+      report.setTacticDetected();
+      report.setAttackerAddress();
+      report.setVictimAddress();
+      report.setActionsTaken();
+      report.print();
+      displaySubmissionError(null);
     } 
   }
 

@@ -1,12 +1,6 @@
 package main.java.model;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
-import java.util.Random;
-import java.util.TimeZone;
 
 public class Report {
   private String reportNumber;
@@ -20,21 +14,65 @@ public class Report {
   private String actionsTaken;
 
   public void setReportNumber() {
-    reportNumber = new Random().toString();
+    String dtfPattern = "yyMMddHHmmssSS";
+    DateTimeFormatter dtFormat = DateTimeFormatter.ofPattern(dtfPattern);
+    String number = LocalDateTime.now().format(dtFormat);
+    reportNumber = String.format("C9L-%s",number);
   }
 
   public void setDateTimeGroup() {
-    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd HHmm 'T' MMM yy");
-    LocalDateTime dt = new LocalDateTime();
-    dt.now();
-    dt.format(dtf);
-    dateTimeGroup = dt.toString();
+    
+  }
+
+  public void setLocation() {}
+  public void setOrganization() {}
+  public void setDetectionMethod() {} 
+  public void setTacticDetected() {}
+  public void setAttackerAddress() {}
+  public void setVictimAddress() {}
+  public void setActionsTaken() {}
+
+  public String getReportNumber() { return reportNumber; }
+  public String getDateTimeGroup() { return dateTimeGroup; }
+  public String getLocation() { return location; }
+  public String getOrganization() { return organization;}
+  public String getDetectionMethod() { return detectionMethod; }
+  public String getTacticDetected() { return tacticDetected; }
+  public String getAttackerAddress() { return attackerAddress; }
+  public String getVictimAddress() { return victimAddress; }
+  public String getActionsTaken() { return actionsTaken; }
+  
+  @Override
+  public String toString() {
+    return String.format("""
+      {
+        "reportNumber": %s,
+        "dateTimeGroup": %s,
+        "location": %s,
+        "organization": %s,
+        "detectionMethod": %s,
+        "tacticDetected": %s,
+        "attackerAddress": %s,
+        "victimAddress": %s,
+        "actionsTaken": %s
+      }""",
+        reportNumber, 
+        dateTimeGroup,
+        location,
+        organization,
+        detectionMethod, 
+        tacticDetected,
+        attackerAddress,
+        victimAddress,
+        actionsTaken);
+  }
+
+  public void print() {
+    System.out.println(this.toString());
   }
 
   public Report() {
     setReportNumber();
-    setDateTimeGroup();
-    System.out.println(reportNumber);
-    System.out.println(dateTimeGroup);
   }
+
 }
