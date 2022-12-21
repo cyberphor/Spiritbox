@@ -7,7 +7,7 @@ public class Report {
   private String dateTimeGroup;
   private String location;
   private String organization;
-  private String detectionMethod;
+  private String indicatorSource;
   private String tacticDetected;
   private String attackerAddress;
   private String victimAddress;
@@ -27,8 +27,8 @@ public class Report {
   public String getReportNumber() { return reportNumber; }
   public String getDateTimeGroup() { return dateTimeGroup; }
   public String getLocation() { return location; }
-  public String getOrganization() { return organization;}
-  public String getDetectionMethod() { return detectionMethod; }
+  public String getOrganization() { return organization; }
+  public String getIndicatorSource() { return indicatorSource; }
   public String getTacticDetected() { return tacticDetected; }
   public String getAttackerAddress() { return attackerAddress; }
   public String getVictimAddress() { return victimAddress; }
@@ -57,8 +57,8 @@ public class Report {
     return this;
   }
   
-  public Report setDetectionMethod(String detectionMethod) {
-    this.detectionMethod = detectionMethod;
+  public Report setIndicatorSource(String indicatorSource) {
+    this.indicatorSource = indicatorSource;
     return this;
   } 
   
@@ -76,7 +76,7 @@ public class Report {
 
   public Report setVictimAddress(String victimAddress) {
     if (isIp4Address(victimAddress)) {
-        this.victimAddress = victimAddress;
+      this.victimAddress = victimAddress;
     }
     return this;
   }
@@ -105,7 +105,7 @@ public class Report {
         dateTimeGroup,
         location,
         organization,
-        detectionMethod, 
+        indicatorSource, 
         tacticDetected,
         attackerAddress,
         victimAddress,

@@ -10,31 +10,61 @@ public class UserInterface {
   private Image image;
   private JTabbedPane tabbedPane;
   private JPanel tab1; 
-  private JPanel tab1Form;
+  private JPanel tab1Fields;
   private JLabel lbDateTimeGroup;
   private JLabel lbLocation;
   private JLabel lbOrganization;
-  private JLabel lbDetectionMethod;
+  private JLabel lbIndicatorSource;
   private JLabel lbTacticDetected;
   private JLabel lbAttackerAddress;
   private JLabel lbVictimAddress;
-  private JLabel lbActionsTaken;
   private JTextField tfDateTimeGroup; // TODO: change to date/time picker
   private JTextField tfLocation;
   private JTextField tfOrganization;
-  private JTextField tfDetectionMethod;
-  private JTextField tfTacticDetected;
+  private JComboBox<String> cbIndicatorSource;
+  private JComboBox<String> cbTacticDetected;
   private JTextField tfAttackerAddress;
   private JTextField tfVictimAddress;
-  private JTextField tfActionsTaken;
+  private JScrollPane tab1Area;
+  private JLabel lbActionsTaken;
+  private JTextArea taActionsTaken;
   private JPanel tab1Buttons;
   private JButton tab1ButtonSubmit;
   private JButton tab1ButtonCancel;
   private ActionListener tab1ButtonSubmitActionListener;
   private ActionListener tab1ButtonCancelActionListener;
+  private String[] sources = {
+    "Alert - Security Incident & Event Management Server",
+    "Alert - Intrusion Detection System",
+    "Alert - Anti-Virus Program",
+    "Alert - File Integrity Checking Program",
+    "Alert - Third-Party Service",
+    "Log - Network Firewall",
+    "Log - Network Flow",
+    "Log - Operating System",
+    "Log - Application",
+    "People - Insider",
+    "People - Outsider"
+  };
+  private String[] tactics = { 
+    "Reconnaissance",
+    "Initial Access",
+    "Execution",
+    "Persistence",
+    "Privilege Escalation",
+    "Defense Evasion",
+    "Credential Access",
+    "Discovery",
+    "Lateral Movement",
+    "Collection",
+    "Command and Control",
+    "Exfiltration",
+    "Impact"
+  };
+
 
   private void clearTextComponents() {
-    for (Component c: tab1Form.getComponents()) {
+    for (Component c: tab1Fields.getComponents()) {
       if (c instanceof JTextField) {
         ((JTextField) c).setText(null);
       } else if (c instanceof JTextArea) {
@@ -60,11 +90,11 @@ public class UserInterface {
         .setDateTimeGroup(tfDateTimeGroup.getText())
         .setLocation(tfLocation.getText())
         .setOrganization(tfOrganization.getText())
-        .setDetectionMethod(tfDetectionMethod.getText()) 
-        .setTacticDetected(tfTacticDetected.getText())
+        .setIndicatorSource(cbIndicatorSource.getSelectedItem().toString()) 
+        .setTacticDetected(cbTacticDetected.getSelectedItem().toString())
         .setAttackerAddress(tfAttackerAddress.getText())
         .setVictimAddress(tfVictimAddress.getText())
-        .setActionsTaken(tfActionsTaken.getText());
+        .setActionsTaken(taActionsTaken.getText());
       report.print();
       clearTextComponents();
     } 
@@ -83,23 +113,24 @@ public class UserInterface {
     image = new ImageIcon("src/main/resources/ghost.png").getImage();
     tabbedPane = new JTabbedPane();
     tab1 = new JPanel();
-    tab1Form = new JPanel();
+    tab1Fields = new JPanel();
     lbDateTimeGroup = new JLabel("Date-Time Group");
     lbLocation = new JLabel("Location");
     lbOrganization = new JLabel("Organization");
-    lbDetectionMethod = new JLabel("Detection Method");
+    lbIndicatorSource = new JLabel("Indicator Source");
     lbTacticDetected = new JLabel("Tactic Detected");
     lbAttackerAddress = new JLabel("Attacker IP Address");
     lbVictimAddress = new JLabel("Victim IP Address");
-    lbActionsTaken = new JLabel("Actions Taken");
     tfDateTimeGroup = new JTextField();
     tfLocation = new JTextField();
     tfOrganization = new JTextField();
-    tfDetectionMethod = new JTextField(); // TODO: change to a drop-down menu
-    tfTacticDetected = new JTextField();
+    cbIndicatorSource = new JComboBox<String>(sources);
+    cbTacticDetected = new JComboBox<String>(tactics);
     tfAttackerAddress = new JTextField();
     tfVictimAddress = new JTextField();
-    tfActionsTaken = new JTextField();
+    tab1Area = new JScrollPane();
+    lbActionsTaken = new JLabel("Actions Taken");
+    taActionsTaken = new JTextArea();
     tab1Buttons = new JPanel();
     tab1ButtonSubmit = new JButton("Submit");
     tab1ButtonCancel = new JButton("Cancel");
@@ -108,23 +139,26 @@ public class UserInterface {
   }
   
   public void display() {
-    tab1Form.setLayout(new GridLayout(9, 2, 5, 5)); 
-    tab1Form.add(lbDateTimeGroup);
-    tab1Form.add(tfDateTimeGroup);
-    tab1Form.add(lbLocation);    
-    tab1Form.add(tfLocation); 
-    tab1Form.add(lbOrganization);
-    tab1Form.add(tfOrganization);
-    tab1Form.add(lbDetectionMethod);
-    tab1Form.add(tfDetectionMethod);
-    tab1Form.add(lbTacticDetected);
-    tab1Form.add(tfTacticDetected);
-    tab1Form.add(lbAttackerAddress);
-    tab1Form.add(tfAttackerAddress);
-    tab1Form.add(lbVictimAddress);
-    tab1Form.add(tfVictimAddress);
-    tab1Form.add(lbActionsTaken); 
-    tab1Form.add(tfActionsTaken);
+    tab1Fields.setLayout(new GridLayout(8, 2, 5, 5)); 
+    tab1Fields.add(lbDateTimeGroup);
+    tab1Fields.add(tfDateTimeGroup);
+    tab1Fields.add(lbLocation);    
+    tab1Fields.add(tfLocation); 
+    tab1Fields.add(lbOrganization);
+    tab1Fields.add(tfOrganization);
+    tab1Fields.add(tfOrganization);
+    tab1Fields.add(lbIndicatorSource);
+    tab1Fields.add(cbIndicatorSource);
+    tab1Fields.add(lbTacticDetected);
+    tab1Fields.add(cbTacticDetected);
+    tab1Fields.add(lbAttackerAddress);
+    tab1Fields.add(tfAttackerAddress);
+    tab1Fields.add(lbVictimAddress);
+    tab1Fields.add(tfVictimAddress);
+    tab1Fields.add(lbActionsTaken); 
+    taActionsTaken.setLineWrap(true);
+    taActionsTaken.setWrapStyleWord(true);
+    tab1Area.setViewportView(taActionsTaken);
     tab1Buttons.setLayout(new GridLayout(1, 2, 5, 5));
     tab1ButtonSubmit.addActionListener(tab1ButtonSubmitActionListener);
     tab1ButtonCancel.addActionListener(tab1ButtonCancelActionListener);
@@ -132,7 +166,8 @@ public class UserInterface {
     tab1Buttons.add(tab1ButtonCancel);
     tab1.setLayout(new BorderLayout());
     tab1.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-    tab1.add(tab1Form, BorderLayout.NORTH);
+    tab1.add(tab1Fields, BorderLayout.NORTH);
+    tab1.add(tab1Area, BorderLayout.CENTER);
     tab1.add(tab1Buttons, BorderLayout.SOUTH);
     tabbedPane.addTab("Report", null, tab1, "Submit a report");
     frame.setTitle("Spiritbox");
