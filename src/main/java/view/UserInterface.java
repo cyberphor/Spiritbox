@@ -8,9 +8,9 @@ public class UserInterface {
   private JFrame frame;
   private Dimension dimension;
   private Image image;
-  private JTabbedPane tabbedPane;
+  private JTabbedPane tabs;
   private JPanel tab1; 
-  private JPanel tab1Fields;
+  private JPanel fields;
   private JLabel lbDateTimeGroup;
   private JLabel lbLocation;
   private JLabel lbOrganization;
@@ -27,24 +27,22 @@ public class UserInterface {
   private JTextField tfVictimAddress;
   private JScrollPane tab1Area;
   private JLabel lbActionsTaken;
-  private JTextArea taActionsTaken;
-  private JPanel tab1Buttons;
-  private JButton tab1ButtonSubmit;
-  private JButton tab1ButtonCancel;
-  private ActionListener tab1ButtonSubmitActionListener;
-  private ActionListener tab1ButtonCancelActionListener;
+  private JTextArea taActionsTaken; 
+  private JPanel buttons;
+  private JButton btnSubmit;
+  private JButton btnCancel;
+  private ActionListener alSubmit;
+  private ActionListener alCancel;
   private String[] sources = {
-    "Alert - Security Incident & Event Management Server",
-    "Alert - Intrusion Detection System",
-    "Alert - Anti-Virus Program",
-    "Alert - File Integrity Checking Program",
-    "Alert - Third-Party Service",
+    "Alert - SIEM Server",
+    "Alert - IDS",
+    "Alert - Anti-Virus",
     "Log - Network Firewall",
     "Log - Network Flow",
     "Log - Operating System",
     "Log - Application",
-    "People - Insider",
-    "People - Outsider"
+    "People - Internal",
+    "People - External"
   };
   private String[] tactics = { 
     "Reconnaissance",
@@ -62,9 +60,8 @@ public class UserInterface {
     "Impact"
   };
 
-
   private void clearTextComponents() {
-    for (Component c: tab1Fields.getComponents()) {
+    for (Component c: fields.getComponents()) {
       if (c instanceof JTextField) {
         ((JTextField) c).setText(null);
       } else if (c instanceof JTextArea) {
@@ -82,10 +79,9 @@ public class UserInterface {
     );
   }
 
-  private class tab1ButtonSubmitActionListener implements ActionListener {
+  private class alSubmit implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-      // TODO: add submission error handling
       Report report = new Report()
         .setDateTimeGroup(tfDateTimeGroup.getText())
         .setLocation(tfLocation.getText())
@@ -100,7 +96,7 @@ public class UserInterface {
     } 
   }
 
-  private class tab1ButtonCancelActionListener implements ActionListener {
+  private class alCancel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
       clearTextComponents();
@@ -109,11 +105,11 @@ public class UserInterface {
 
   public UserInterface() {
     frame = new JFrame();
-    dimension = new Dimension(300,500);
+    dimension = new Dimension(350,500);
     image = new ImageIcon("src/main/resources/ghost.png").getImage();
-    tabbedPane = new JTabbedPane();
+    tabs = new JTabbedPane();
     tab1 = new JPanel();
-    tab1Fields = new JPanel();
+    fields = new JPanel();
     lbDateTimeGroup = new JLabel("Date-Time Group");
     lbLocation = new JLabel("Location");
     lbOrganization = new JLabel("Organization");
@@ -131,48 +127,48 @@ public class UserInterface {
     tab1Area = new JScrollPane();
     lbActionsTaken = new JLabel("Actions Taken");
     taActionsTaken = new JTextArea();
-    tab1Buttons = new JPanel();
-    tab1ButtonSubmit = new JButton("Submit");
-    tab1ButtonCancel = new JButton("Cancel");
-    tab1ButtonSubmitActionListener = new tab1ButtonSubmitActionListener();
-    tab1ButtonCancelActionListener = new tab1ButtonCancelActionListener();
+    buttons = new JPanel();
+    btnSubmit = new JButton("Submit");
+    btnCancel = new JButton("Cancel");
+    alSubmit = new alSubmit();
+    alCancel = new alCancel();
   }
   
   public void display() {
-    tab1Fields.setLayout(new GridLayout(8, 2, 5, 5)); 
-    tab1Fields.add(lbDateTimeGroup);
-    tab1Fields.add(tfDateTimeGroup);
-    tab1Fields.add(lbLocation);    
-    tab1Fields.add(tfLocation); 
-    tab1Fields.add(lbOrganization);
-    tab1Fields.add(tfOrganization);
-    tab1Fields.add(tfOrganization);
-    tab1Fields.add(lbIndicatorSource);
-    tab1Fields.add(cbIndicatorSource);
-    tab1Fields.add(lbTacticDetected);
-    tab1Fields.add(cbTacticDetected);
-    tab1Fields.add(lbAttackerAddress);
-    tab1Fields.add(tfAttackerAddress);
-    tab1Fields.add(lbVictimAddress);
-    tab1Fields.add(tfVictimAddress);
-    tab1Fields.add(lbActionsTaken); 
+    fields.setLayout(new GridLayout(8, 2, 5, 5));
+    fields.add(lbDateTimeGroup);
+    fields.add(tfDateTimeGroup);
+    fields.add(lbLocation);    
+    fields.add(tfLocation); 
+    fields.add(lbOrganization);
+    fields.add(tfOrganization);
+    fields.add(tfOrganization);
+    fields.add(lbIndicatorSource);
+    fields.add(cbIndicatorSource);
+    fields.add(lbTacticDetected);
+    fields.add(cbTacticDetected);
+    fields.add(lbAttackerAddress);
+    fields.add(tfAttackerAddress);
+    fields.add(lbVictimAddress);
+    fields.add(tfVictimAddress);
+    fields.add(lbActionsTaken); 
     taActionsTaken.setLineWrap(true);
     taActionsTaken.setWrapStyleWord(true);
     tab1Area.setViewportView(taActionsTaken);
-    tab1Buttons.setLayout(new GridLayout(1, 2, 5, 5));
-    tab1ButtonSubmit.addActionListener(tab1ButtonSubmitActionListener);
-    tab1ButtonCancel.addActionListener(tab1ButtonCancelActionListener);
-    tab1Buttons.add(tab1ButtonSubmit);
-    tab1Buttons.add(tab1ButtonCancel);
+    buttons.setLayout(new GridLayout(1, 2, 5, 5));
+    btnSubmit.addActionListener(alSubmit);
+    btnCancel.addActionListener(alCancel);
+    buttons.add(btnSubmit);
+    buttons.add(btnCancel);
     tab1.setLayout(new BorderLayout());
     tab1.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-    tab1.add(tab1Fields, BorderLayout.NORTH);
+    tab1.add(fields, BorderLayout.NORTH);
     tab1.add(tab1Area, BorderLayout.CENTER);
-    tab1.add(tab1Buttons, BorderLayout.SOUTH);
-    tabbedPane.addTab("Report", null, tab1, "Submit a report");
+    tab1.add(buttons, BorderLayout.SOUTH);
+    tabs.addTab("Report", null, tab1, "Submit a report");
     frame.setTitle("Spiritbox");
     frame.setIconImage(image);
-    frame.add(tabbedPane);
+    frame.add(tabs);
     frame.setSize(dimension);
     frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     frame.setVisible(true);

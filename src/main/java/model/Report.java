@@ -94,7 +94,7 @@ public class Report {
         'dateTimeGroup': '%s',
         'location': '%s',
         'organization': '%s',
-        'detectionMethod': '%s',
+        'indicatorSource': '%s',
         'tacticDetected': '%s',
         'attackerAddress': '%s',
         'victimAddress': '%s',
