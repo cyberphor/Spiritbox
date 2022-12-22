@@ -1,4 +1,4 @@
-package main.java.model;
+package main.java;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -18,7 +18,7 @@ public class Report {
     if (address.contains(".") && address.length() >= 7 && address.length() <= 15) {
       String[] octets = address.split("\\.");
       if (octets.length == 4) {
-        // check if each octet is <= 255
+        // TODO: check if each octet is <= 255
         return true;
       }
     }
@@ -35,14 +35,6 @@ public class Report {
   public String getAttackerAddress() { return attackerAddress; }
   public String getVictimAddress() { return victimAddress; }
   public String getActionsTaken() { return actionsTaken; }
-
-  public Report setReportNumber() {
-    String pattern = "yyMMddHHmmssSS";
-    DateTimeFormatter format = DateTimeFormatter.ofPattern(pattern);
-    String reportNumber = LocalDateTime.now().format(format);
-    this.reportNumber = String.format("C9L-%s", reportNumber);
-    return this;
-  }
 
   public Report setDate(String date) {
     this.date = date;
@@ -126,6 +118,9 @@ public class Report {
   }
 
   public Report() {
-    setReportNumber();
+    String pattern = "yyMMddHHmmssSS";
+    DateTimeFormatter format = DateTimeFormatter.ofPattern(pattern);
+    String reportNumber = LocalDateTime.now().format(format);
+    this.reportNumber = String.format("C9L-%s", reportNumber);
   }
 }
