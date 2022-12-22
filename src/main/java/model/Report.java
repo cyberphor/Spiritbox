@@ -4,11 +4,12 @@ import java.time.format.DateTimeFormatter;
 
 public class Report {
   private String reportNumber;
-  private String dateTimeGroup;
+  private String date;
+  private String time;
   private String location;
   private String organization;
-  private String indicatorSource;
-  private String tacticDetected;
+  private String activity;
+  private String source;
   private String attackerAddress;
   private String victimAddress;
   private String actionsTaken;
@@ -25,11 +26,12 @@ public class Report {
   }
 
   public String getReportNumber() { return reportNumber; }
-  public String getDateTimeGroup() { return dateTimeGroup; }
+  public String getDate() { return date; }
+  public String getTime() { return time; }
   public String getLocation() { return location; }
   public String getOrganization() { return organization; }
-  public String getIndicatorSource() { return indicatorSource; }
-  public String getTacticDetected() { return tacticDetected; }
+  public String getActivity() { return activity; }
+  public String getSource() { return source; }
   public String getAttackerAddress() { return attackerAddress; }
   public String getVictimAddress() { return victimAddress; }
   public String getActionsTaken() { return actionsTaken; }
@@ -42,8 +44,13 @@ public class Report {
     return this;
   }
 
-  public Report setDateTimeGroup(String dateTimeGroup) {
-    this.dateTimeGroup = dateTimeGroup;
+  public Report setDate(String date) {
+    this.date = date;
+    return this;
+  }
+
+  public Report setTime(String time) {
+    this.time = time;
     return this;
   }
 
@@ -56,16 +63,16 @@ public class Report {
     this.organization = organization;
     return this;
   }
-  
-  public Report setIndicatorSource(String indicatorSource) {
-    this.indicatorSource = indicatorSource;
-    return this;
-  } 
-  
-  public Report setTacticDetected(String tacticDetected) {
-    this.tacticDetected = tacticDetected;
+   
+  public Report setActivity(String activity) {
+    this.activity = activity;
     return this;
   }
+
+  public Report setSource(String source) {
+    this.source = source;
+    return this;
+  } 
 
   public Report setAttackerAddress(String attackerAddress) {
     if (isIp4Address(attackerAddress)) {
@@ -91,22 +98,24 @@ public class Report {
     return String.format("""
       "{
         'reportNumber': '%s',
-        'dateTimeGroup': '%s',
+        'date': '%s',
+        'time': '%s',
         'location': '%s',
         'organization': '%s',
-        'indicatorSource': '%s',
-        'tacticDetected': '%s',
+        'activity': '%s',
+        'source': '%s',
         'attackerAddress': '%s',
         'victimAddress': '%s',
         'actionsTaken': '%s'
       }"
       """,
         reportNumber, 
-        dateTimeGroup,
+        date,
+        time,
         location,
         organization,
-        indicatorSource, 
-        tacticDetected,
+        activity,
+        source, 
         attackerAddress,
         victimAddress,
         actionsTaken);

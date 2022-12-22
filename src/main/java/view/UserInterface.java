@@ -4,47 +4,31 @@ import java.awt.event.*;
 import javax.swing.*;
 import main.java.model.Report;
 
-public class UserInterface {
-  private JFrame frame;
-  private Dimension dimension;
+public class UserInterface extends JFrame {
+  // Frame properties
+  private Dimension size;
   private Image image;
   private JTabbedPane tabs;
-  private JPanel tab1; 
+  private JPanel tab1;
+
+  // "Fields" pane properties
   private JPanel fields;
-  private JLabel lbDateTimeGroup;
-  private JLabel lbLocation;
-  private JLabel lbOrganization;
-  private JLabel lbIndicatorSource;
-  private JLabel lbTacticDetected;
-  private JLabel lbAttackerAddress;
-  private JLabel lbVictimAddress;
-  private JTextField tfDateTimeGroup; // TODO: change to date/time picker
-  private JTextField tfLocation;
-  private JTextField tfOrganization;
-  private JComboBox<String> cbIndicatorSource;
-  private JComboBox<String> cbTacticDetected;
-  private JTextField tfAttackerAddress;
-  private JTextField tfVictimAddress;
-  private JScrollPane tab1Area;
-  private JLabel lbActionsTaken;
-  private JTextArea taActionsTaken; 
-  private JPanel buttons;
-  private JButton btnSubmit;
-  private JButton btnCancel;
-  private ActionListener alSubmit;
-  private ActionListener alCancel;
-  private String[] sources = {
-    "Alert - SIEM Server",
-    "Alert - IDS",
-    "Alert - Anti-Virus",
-    "Log - Network Firewall",
-    "Log - Network Flow",
-    "Log - Operating System",
-    "Log - Application",
-    "People - Internal",
-    "People - External"
-  };
-  private String[] tactics = { 
+
+  private JLabel dateLabel;
+  private JTextField dateField;
+
+  private JLabel timeLabel;
+  private JTextField timeField;
+
+  private JLabel locationLabel;
+  private JTextField locationField;
+
+  private JLabel organizationLabel;
+  private JTextField organziationField;
+
+  private JLabel activityLabel;
+  private JComboBox<String> activityField;
+  private String[] activities = { 
     "Reconnaissance",
     "Initial Access",
     "Execution",
@@ -60,14 +44,71 @@ public class UserInterface {
     "Impact"
   };
 
+  private JLabel sourceLabel;
+  private JComboBox<String> sourceField;
+  private String[] sources = {
+    "Alert - SIEM Server",
+    "Alert - IDS",
+    "Alert - Anti-Virus",
+    "Log - Network Firewall",
+    "Log - Network Flow",
+    "Log - Operating System",
+    "Log - Application",
+    "People - Internal",
+    "People - External"
+  };
+
+  private JLabel attackerAddressLabel;
+  private JTextField attackerAddressField;
+  
+  private JLabel victimAddressLabel;
+  private JTextField victimAddressField;
+
+  // "Actions Taken" pane properties
+  private JScrollPane actionsTaken;
+  private JLabel actionsTakenLabel;
+  private JTextArea actionsTakenField; 
+
+  // "Buttons" pane properties
+  private JPanel buttons;
+
   private void clearTextComponents() {
-    for (Component c: fields.getComponents()) {
+    for (Component c: this.getComponents()) {
       if (c instanceof JTextField) {
         ((JTextField) c).setText(null);
       } else if (c instanceof JTextArea) {
         ((JTextArea) c).setText(null);
       } 
     }
+  }
+
+  private JButton submitButton;
+  private ActionListener submitHandler;
+  private class submitHandler implements ActionListener {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      Report report = new Report()
+        .setDate(dateField.getText())
+        .setTime(timeField.getText())
+        .setLocation(locationField.getText())
+        .setOrganization(organziationField.getText())
+        .setSource(sourceField.getSelectedItem().toString()) 
+        .setActivity(activityField.getSelectedItem().toString())
+        .setAttackerAddress(attackerAddressField.getText())
+        .setVictimAddress(victimAddressField.getText())
+        .setActionsTaken(actionsTakenField.getText());
+      report.print();
+      clearTextComponents();
+    } 
+  }
+
+  private JButton cancelButton;
+  private ActionListener cancelHandler;
+  private class cancelHandler implements ActionListener {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      clearTextComponents();
+    } 
   }
 
   private void displaySubmissionError(Exception error) {
@@ -79,98 +120,84 @@ public class UserInterface {
     );
   }
 
-  private class alSubmit implements ActionListener {
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      Report report = new Report()
-        .setDateTimeGroup(tfDateTimeGroup.getText())
-        .setLocation(tfLocation.getText())
-        .setOrganization(tfOrganization.getText())
-        .setIndicatorSource(cbIndicatorSource.getSelectedItem().toString()) 
-        .setTacticDetected(cbTacticDetected.getSelectedItem().toString())
-        .setAttackerAddress(tfAttackerAddress.getText())
-        .setVictimAddress(tfVictimAddress.getText())
-        .setActionsTaken(taActionsTaken.getText());
-      report.print();
-      clearTextComponents();
-    } 
-  }
-
-  private class alCancel implements ActionListener {
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      clearTextComponents();
-    } 
-  }
-
   public UserInterface() {
-    frame = new JFrame();
-    dimension = new Dimension(350,500);
+    size = new Dimension(350,500);
     image = new ImageIcon("src/main/resources/ghost.png").getImage();
     tabs = new JTabbedPane();
+
     tab1 = new JPanel();
     fields = new JPanel();
-    lbDateTimeGroup = new JLabel("Date-Time Group");
-    lbLocation = new JLabel("Location");
-    lbOrganization = new JLabel("Organization");
-    lbIndicatorSource = new JLabel("Indicator Source");
-    lbTacticDetected = new JLabel("Tactic Detected");
-    lbAttackerAddress = new JLabel("Attacker IP Address");
-    lbVictimAddress = new JLabel("Victim IP Address");
-    tfDateTimeGroup = new JTextField();
-    tfLocation = new JTextField();
-    tfOrganization = new JTextField();
-    cbIndicatorSource = new JComboBox<String>(sources);
-    cbTacticDetected = new JComboBox<String>(tactics);
-    tfAttackerAddress = new JTextField();
-    tfVictimAddress = new JTextField();
-    tab1Area = new JScrollPane();
-    lbActionsTaken = new JLabel("Actions Taken");
-    taActionsTaken = new JTextArea();
+    actionsTaken = new JScrollPane();
     buttons = new JPanel();
-    btnSubmit = new JButton("Submit");
-    btnCancel = new JButton("Cancel");
-    alSubmit = new alSubmit();
-    alCancel = new alCancel();
+
+    dateLabel = new JLabel("Date");
+    fields.add(dateLabel);
+    dateField = new JTextField();
+    fields.add(dateLabel);
+
+    locationLabel = new JLabel("Location");
+    fields.add(locationLabel);
+    locationField = new JTextField();
+    fields.add(locationField);
+
+    organizationLabel = new JLabel("Organization");
+    fields.add(organizationLabel);
+    organziationField = new JTextField();
+    fields.add(organziationField);
+
+    activityLabel = new JLabel("Activity");
+    fields.add(activityLabel);
+    activityField = new JComboBox<String>(activities);
+    activityField.add(actionsTakenField);
+    
+    sourceLabel = new JLabel("Source");
+    fields.add(sourceLabel);
+    sourceField = new JComboBox<String>(sources);
+    fields.add(sourceField);
+
+    attackerAddressLabel = new JLabel("Attacker IP Address");
+    fields.add(attackerAddressLabel);
+    attackerAddressField = new JTextField();
+    fields.add(attackerAddressField);
+
+    victimAddressLabel = new JLabel("Victim IP Address");
+    fields.add(victimAddressLabel);
+    victimAddressField = new JTextField();
+    fields.add(victimAddressField);
+
+    actionsTakenLabel = new JLabel("Actions Taken");
+    fields.add(actionsTakenLabel);
+    actionsTakenField = new JTextArea();
+    actionsTakenField.setLineWrap(true);
+    actionsTakenField.setWrapStyleWord(true);
+    actionsTaken.setViewportView(actionsTakenField);
+
+    submitButton = new JButton("Submit");
+    submitHandler = new submitHandler();
+    submitButton.addActionListener(submitHandler);
+    buttons.add(submitButton);
+    cancelButton = new JButton("Cancel");
+    cancelHandler = new cancelHandler();
+    cancelButton.addActionListener(cancelHandler);
+    buttons.add(cancelButton);
   }
   
   public void display() {
     fields.setLayout(new GridLayout(8, 2, 5, 5));
-    fields.add(lbDateTimeGroup);
-    fields.add(tfDateTimeGroup);
-    fields.add(lbLocation);    
-    fields.add(tfLocation); 
-    fields.add(lbOrganization);
-    fields.add(tfOrganization);
-    fields.add(tfOrganization);
-    fields.add(lbIndicatorSource);
-    fields.add(cbIndicatorSource);
-    fields.add(lbTacticDetected);
-    fields.add(cbTacticDetected);
-    fields.add(lbAttackerAddress);
-    fields.add(tfAttackerAddress);
-    fields.add(lbVictimAddress);
-    fields.add(tfVictimAddress);
-    fields.add(lbActionsTaken); 
-    taActionsTaken.setLineWrap(true);
-    taActionsTaken.setWrapStyleWord(true);
-    tab1Area.setViewportView(taActionsTaken);
     buttons.setLayout(new GridLayout(1, 2, 5, 5));
-    btnSubmit.addActionListener(alSubmit);
-    btnCancel.addActionListener(alCancel);
-    buttons.add(btnSubmit);
-    buttons.add(btnCancel);
     tab1.setLayout(new BorderLayout());
     tab1.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+    
     tab1.add(fields, BorderLayout.NORTH);
-    tab1.add(tab1Area, BorderLayout.CENTER);
+    tab1.add(actionsTaken, BorderLayout.CENTER);
     tab1.add(buttons, BorderLayout.SOUTH);
     tabs.addTab("Report", null, tab1, "Submit a report");
-    frame.setTitle("Spiritbox");
-    frame.setIconImage(image);
-    frame.add(tabs);
-    frame.setSize(dimension);
-    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    frame.setVisible(true);
+
+    this.setTitle("Spiritbox");
+    this.setIconImage(image);
+    this.add(tabs);
+    this.setSize(size);
+    this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    this.setVisible(true);
   }
 }
