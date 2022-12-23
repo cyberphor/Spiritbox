@@ -63,12 +63,11 @@ class Spiritbox {
   // declares a "Buttons" pane
   private JPanel buttons;
   private void clearTextComponents() {
-    for (Component c: frame.getComponents()) {
+    actionsTakenField.setText(null);
+    for (Component c: fields.getComponents()) {
       if (c instanceof JTextField) {
         ((JTextField) c).setText(null);
-      } else if (c instanceof JTextArea) {
-        ((JTextArea) c).setText(null);
-      } 
+      }
     }
   }
   private JButton submitButton;
@@ -86,7 +85,7 @@ class Spiritbox {
         .setAttackerAddress(attackerAddressField.getText())
         .setVictimAddress(victimAddressField.getText())
         .setActionsTaken(actionsTakenField.getText());
-      report.print();
+      Publisher.toLogstash(report);
       clearTextComponents();
     } 
   }
@@ -103,6 +102,7 @@ class Spiritbox {
   private JPanel tab1;
   private JTabbedPane tabs;
 
+  // constructor method for the "Spiritbox" class
   public Spiritbox() {
 
     // inits the window "Frame"
