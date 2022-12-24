@@ -85,7 +85,7 @@ class Spiritbox {
         .setAttackerAddress(attackerAddressField.getText())
         .setVictimAddress(victimAddressField.getText())
         .setActionsTaken(actionsTakenField.getText());
-      Publisher.toLogstash(report);
+      LogstashClient.send(report);
       clearTextComponents();
     } 
   }

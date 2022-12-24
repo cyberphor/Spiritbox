@@ -88,18 +88,18 @@ public class Report {
   @Override
   public String toString() {
     return String.format("""
-      "{
-        'reportNumber': '%s',
-        'date': '%s',
-        'time': '%s',
-        'location': '%s',
-        'organization': '%s',
-        'activity': '%s',
-        'source': '%s',
-        'attackerAddress': '%s',
-        'victimAddress': '%s',
-        'actionsTaken': '%s'
-      }"
+      {
+        "reportNumber": "%s",
+        "date": "%s",
+        "time": "%s",
+        "location": "%s",
+        "organization": "%s",
+        "activity": "%s",
+        "source": "%s",
+        "attackerAddress": "%s",
+        "victimAddress": "%s",
+        "actionsTaken": "%s"
+      }
       """,
         reportNumber, 
         date,
@@ -113,10 +113,6 @@ public class Report {
         actionsTaken);
   }
 
-  public void print() {
-    System.out.println(this.toString());
-  }
-
   public Report() {
     String pattern = "yyMMddHHmmssSS";
     DateTimeFormatter format = DateTimeFormatter.ofPattern(pattern);
@@ -124,3 +120,30 @@ public class Report {
     this.reportNumber = String.format("C9L-%s", reportNumber);
   }
 }
+
+/*
+class Indicator {
+  private String Source;
+  private String Value;
+  private LocalDateTime LastSeen;
+
+  public String getSource() { return Source; }
+  public String getValue() { return Value; }
+  public LocalDateTime getLastSeen() { return LastSeen; }
+
+  public Indicator setSource(String source) { 
+    this.Source = source;
+    return this;
+  }
+
+  public Indicator setValue(String value) { 
+    this.Value = value;
+    return this;
+  }
+
+  public Indicator setLastSeen(LocalDateTime lastSeen) { 
+    this.LastSeen = lastSeen;
+    return this;
+  }
+}
+*/
