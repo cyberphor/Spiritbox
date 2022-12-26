@@ -121,16 +121,14 @@ public class Report {
         actionsTaken);
   }
 
-  public void send() {
+  public void send(URI uri) {
     HttpClient client;
-    URI uri;
     BodyPublisher requestBodyHandler;
     HttpRequest request;
     BodyHandler<String> responseBodyHandler;
     HttpResponse<?> response;
 
     client = HttpClient.newHttpClient();
-    uri = URI.create("http://localhost:1337");
     requestBodyHandler = BodyPublishers.ofString(this.toString());
     request = HttpRequest.newBuilder()
       .uri(uri)
@@ -143,7 +141,7 @@ public class Report {
       response = client.send(request, responseBodyHandler);
       System.out.println(response.body()); // TODO: log response
     } catch (Exception e) {
-      // TODO: ???
+      // TODO: log 
     }
   }
 
