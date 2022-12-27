@@ -1,9 +1,13 @@
 package main.java;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.net.URI;
@@ -19,8 +23,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
-import com.github.lgooddatepicker.components.DatePicker;
-import com.github.lgooddatepicker.components.TimePicker;
 
 // declares the "Spiritbox" class
 class Spiritbox {
@@ -33,25 +35,51 @@ class Spiritbox {
   // declares a "Fields" pane
   private JPanel fields;
   private JLabel dateLabel;
-  private DatePicker dateField;
-  private JLabel timeLabel;
-  private JComboBox<String> timeField;
-  private String[] time = {
-    "00:00",
-    "01:00",
-    "02:00",
-    "03:00",
-    "04:00",
-    "05:00",
-    "06:00",
-    "07:00",
-    "08:00",
-    "09:00",
-    "10:00",
-    "11:00",
-    "12:00",
-    "13:00"
+  private JTextField dateField;
+  private class DateFocusHandler implements FocusListener {
+    private String placeholder = "YYYY MMM DD";
+    public DateFocusHandler() {
+      dateField.setForeground(Color.GRAY);
+      dateField.setFont(new Font("",Font.ITALIC,12)); // TODO: change this, it's ugly
+      dateField.setText(placeholder);
+    }
+    @Override
+    public void focusGained(FocusEvent e) {
+      if (dateField.getText().equals(placeholder)) {
+        dateField.setText("");
+      }
+    }
+    @Override
+    public void focusLost(FocusEvent e) {
+      if (dateField.getText().equals("")) {
+        dateField.setText(placeholder);
+      }
+    }
   };
+  private DateFocusHandler dateFocusHandler;
+  private JLabel timeLabel; 
+  private JTextField timeField;
+  private class TimeFocusHandler implements FocusListener {
+    private String placeholder = "1000";
+    public TimeFocusHandler() {
+      timeField.setText(placeholder);
+      timeField.setForeground(Color.GRAY);
+      timeField.setFont(new Font("",Font.ITALIC,12)); // TODO: change this, it's ugly
+    }
+    @Override
+    public void focusGained(FocusEvent e) {
+      if (timeField.getText().equals(placeholder)) {
+        timeField.setText("");
+      }
+    }
+    @Override
+    public void focusLost(FocusEvent e) {
+      if (timeField.getText().equals("")) {
+        timeField.setText(placeholder);
+      }
+    }
+  };
+  private TimeFocusHandler timeFocusHandler;
   private JLabel locationLabel;
   private JTextField locationField;
   private JLabel organizationLabel;
@@ -107,13 +135,12 @@ class Spiritbox {
     }
   }
   private JButton submitButton;
-  private ActionListener submitHandler;
-  private class submitHandler implements ActionListener {
+  private class SubmitHandler implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
       Report report = new Report()
         .setDate(dateField.getText())
-        .setTime(timeField.getSelectedItem().toString())
+        .setTime(timeField.getText())
         .setLocation(locationField.getText())
         .setOrganization(organziationField.getText())
         .setSource(sourceField.getSelectedItem().toString()) 
@@ -126,14 +153,15 @@ class Spiritbox {
       clearTextComponents();
     } 
   }
+  private SubmitHandler submitHandler;
   private JButton cancelButton;
-  private ActionListener cancelHandler;
-  private class cancelHandler implements ActionListener {
+  private class CancelHandler implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
       clearTextComponents();
     } 
   }
+  private CancelHandler cancelHandler;
 
   // declares "Tab" panes
   private JPanel tab1;
@@ -150,9 +178,11 @@ class Spiritbox {
     // inits the "Fields" pane
     fields = new JPanel();
     dateLabel = new JLabel("Date");
-    dateField = new DatePicker();
+    dateField = new JTextField();
+    dateFocusHandler = new DateFocusHandler();
     timeLabel = new JLabel("Time");
-    timeField = new JComboBox<String>(time);
+    timeField = new JTextField();
+    timeFocusHandler = new TimeFocusHandler();
     locationLabel = new JLabel("Location");
     locationField = new JTextField();
     organizationLabel = new JLabel("Organization");
@@ -174,9 +204,9 @@ class Spiritbox {
     // inits "Buttons" pane
     buttons = new JPanel();
     submitButton = new JButton("Submit");
-    submitHandler = new submitHandler();
+    submitHandler = new SubmitHandler();
     cancelButton = new JButton("Cancel");
-    cancelHandler = new cancelHandler();
+    cancelHandler = new CancelHandler();
     
     // inits "Tab" panes
     tab1 = new JPanel();
@@ -189,8 +219,10 @@ class Spiritbox {
     // adds fields to "Fields" pane
     fields.setLayout(new GridLayout(9, 2, 5, 5));
     fields.add(dateLabel);
+    dateField.addFocusListener(dateFocusHandler);
     fields.add(dateField);
     fields.add(timeLabel);
+    timeField.addFocusListener(timeFocusHandler);
     fields.add(timeField);
     fields.add(locationLabel);
     fields.add(locationField);
