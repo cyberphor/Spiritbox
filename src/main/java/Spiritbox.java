@@ -19,6 +19,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.TimePicker;
 
 // declares the "Spiritbox" class
 class Spiritbox {
@@ -31,9 +33,25 @@ class Spiritbox {
   // declares a "Fields" pane
   private JPanel fields;
   private JLabel dateLabel;
-  private JTextField dateField;
+  private DatePicker dateField;
   private JLabel timeLabel;
-  private JTextField timeField;
+  private JComboBox<String> timeField;
+  private String[] time = {
+    "00:00",
+    "01:00",
+    "02:00",
+    "03:00",
+    "04:00",
+    "05:00",
+    "06:00",
+    "07:00",
+    "08:00",
+    "09:00",
+    "10:00",
+    "11:00",
+    "12:00",
+    "13:00"
+  };
   private JLabel locationLabel;
   private JTextField locationField;
   private JLabel organizationLabel;
@@ -95,7 +113,7 @@ class Spiritbox {
     public void actionPerformed(ActionEvent e) {
       Report report = new Report()
         .setDate(dateField.getText())
-        .setTime(timeField.getText())
+        .setTime(timeField.getSelectedItem().toString())
         .setLocation(locationField.getText())
         .setOrganization(organziationField.getText())
         .setSource(sourceField.getSelectedItem().toString()) 
@@ -126,15 +144,15 @@ class Spiritbox {
 
     // inits the window "Frame"
     frame = new JFrame();
-    size = new Dimension(350,500);
+    size = new Dimension(400,500);
     image = new ImageIcon("src/main/resources/ghost.png").getImage();
 
     // inits the "Fields" pane
     fields = new JPanel();
     dateLabel = new JLabel("Date");
-    dateField = new JTextField();
+    dateField = new DatePicker();
     timeLabel = new JLabel("Time");
-    timeField = new JTextField();
+    timeField = new JComboBox<String>(time);
     locationLabel = new JLabel("Location");
     locationField = new JTextField();
     organizationLabel = new JLabel("Organization");
