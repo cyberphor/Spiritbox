@@ -10,6 +10,8 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import javax.swing.JOptionPane;
+
 public class Report {
   private String reportNumber;
   private String date;
@@ -21,6 +23,12 @@ public class Report {
   private String attackerAddress;
   private String victimAddress;
   private String actionsTaken;
+
+  private void displayErrorMessage(String message) {
+    JOptionPane.showMessageDialog(
+      null, message, "Error", JOptionPane.ERROR_MESSAGE
+    );
+  }
 
   private Boolean isIp4Address(String address) {
     if (address.contains(".") && address.length() >= 7 && address.length() <= 15) {
@@ -77,8 +85,11 @@ public class Report {
   public Report setAttackerAddress(String attackerAddress) {
     if (isIp4Address(attackerAddress)) {
       this.attackerAddress = attackerAddress;
+      return this;
+    } else { 
+      displayErrorMessage("Invalid IP address");
+      return this;
     }
-    return this;
   }
 
   public Report setVictimAddress(String victimAddress) {
