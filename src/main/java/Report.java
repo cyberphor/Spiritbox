@@ -1,12 +1,4 @@
 package main.java;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublisher;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandler;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -23,12 +15,6 @@ public class Report {
   private String attackerAddress;
   private String victimAddress;
   private String actionsTaken;
-
-  private void displayErrorMessage(String message) {
-    JOptionPane.showMessageDialog(
-      null, message, "Error", JOptionPane.ERROR_MESSAGE
-    );
-  }
 
   private Boolean isIp4Address(String address) {
     if (address.contains(".") && address.length() >= 7 && address.length() <= 15) {
@@ -87,7 +73,6 @@ public class Report {
       this.attackerAddress = attackerAddress;
       return this;
     } else { 
-      displayErrorMessage("Invalid IP address");
       return this;
     }
   }
@@ -130,30 +115,6 @@ public class Report {
         attackerAddress,
         victimAddress,
         actionsTaken);
-  }
-
-  public void send(URI uri) {
-    HttpClient client;
-    BodyPublisher requestBodyHandler;
-    HttpRequest request;
-    BodyHandler<String> responseBodyHandler;
-    HttpResponse<?> response;
-
-    client = HttpClient.newHttpClient();
-    requestBodyHandler = BodyPublishers.ofString(this.toString());
-    request = HttpRequest.newBuilder()
-      .uri(uri)
-      .header("Content-Type", "application/json")
-      .POST(requestBodyHandler)
-      .build();
-    responseBodyHandler = BodyHandlers.ofString();
-
-    try {
-      response = client.send(request, responseBodyHandler);
-      System.out.println(response.body()); // TODO: log response
-    } catch (Exception e) {
-      // TODO: log 
-    }
   }
 
   public Report() {

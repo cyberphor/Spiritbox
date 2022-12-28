@@ -8,15 +8,25 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.io.IOException;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublisher;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandler;
+import java.net.http.HttpResponse.BodyHandlers;
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -124,8 +134,7 @@ class Spiritbox {
   private JLabel actionsTakenLabel;
   private JTextArea actionsTakenField; 
 
-  // declares a "Buttons" pane
-  private JPanel buttons;
+  // declares a method for clearing the text fields
   private void clearTextComponents() {
     actionsTakenField.setText(null);
     for (Component c: fields.getComponents()) {
@@ -134,23 +143,47 @@ class Spiritbox {
       }
     }
   }
+
+  // declares the HTTP objects needed to send a Report
+  private HttpClient httpClient;
+  private BodyPublisher requestBodyHandler;
+  private HttpRequest request;
+  private BodyHandler<String> responseBodyHandler;
+  private HttpResponse<?> response;
+
+  // declares a "Buttons" pane
+  private JPanel buttons;
   private JButton submitButton;
   private class SubmitHandler implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-      Report report = new Report()
-        .setDate(dateField.getText())
-        .setTime(timeField.getText())
-        .setLocation(locationField.getText())
-        .setOrganization(organziationField.getText())
-        .setSource(sourceField.getSelectedItem().toString()) 
-        .setActivity(activityField.getSelectedItem().toString())
-        .setAttackerAddress(attackerAddressField.getText())
-        .setVictimAddress(victimAddressField.getText())
-        .setActionsTaken(actionsTakenField.getText());
       URI uri = URI.create("http://localhost:1337"); // TODO: change 
-      report.send(uri);
-      clearTextComponents();
+      try {
+        Report report = new Report()
+          .setDate(dateField.getText())
+          .setTime(timeField.getText())
+          .setLocation(locationField.getText())
+          .setOrganization(organziationField.getText())
+          .setSource(sourceField.getSelectedItem().toString()) 
+          .setActivity(activityField.getSelectedItem().toString())
+          .setAttackerAddress(attackerAddressField.getText())
+          .setVictimAddress(victimAddressField.getText())
+          .setActionsTaken(actionsTakenField.getText());
+        requestBodyHandler = BodyPublishers.ofString(report.toString());
+        request = HttpRequest.newBuilder()
+          .uri(uri)
+          .header("Content-Type", "application/json")
+          .POST(requestBodyHandler)
+          .build();
+        responseBodyHandler = BodyHandlers.ofString();
+        response = httpClient.send(request, responseBodyHandler);
+        JOptionPane.showMessageDialog(null, response.body(), "Server Reply", JOptionPane.OK_OPTION);
+        clearTextComponents();
+      } catch(InterruptedException err) {
+        JOptionPane.showMessageDialog(null, "Please wait 30 seconds and try again.", ("Error: " + err), JOptionPane.ERROR_MESSAGE);
+      } catch(IOException err) {
+        JOptionPane.showMessageDialog(null, "Server unavailable.", ("Error: " + err), JOptionPane.ERROR_MESSAGE);
+      }
     } 
   }
   private SubmitHandler submitHandler;
@@ -203,6 +236,7 @@ class Spiritbox {
 
     // inits "Buttons" pane
     buttons = new JPanel();
+    httpClient = HttpClient.newHttpClient();
     submitButton = new JButton("Submit");
     submitHandler = new SubmitHandler();
     cancelButton = new JButton("Cancel");
@@ -216,7 +250,7 @@ class Spiritbox {
   // declares a "Display" method to present all panes to the user
   public void display() {
 
-    // adds fields to "Fields" pane
+    // adds fields to the "Fields" pane
     fields.setLayout(new GridLayout(9, 2, 5, 5));
     fields.add(dateLabel);
     dateField.addFocusListener(dateFocusHandler);
@@ -238,7 +272,7 @@ class Spiritbox {
     fields.add(victimAddressField);
     fields.add(actionsTakenLabel);
 
-    // adds fields to the "Fields" pane
+    // adds the "Activity" field to the "Actions Taken" pane
     activityField.add(actionsTakenField);
     actionsTakenField.setLineWrap(true);
     actionsTakenField.setWrapStyleWord(true);
@@ -261,6 +295,7 @@ class Spiritbox {
 
     // adds the tabbed pane to the window "Frame"
     frame.setSize(size);
+    frame.setResizable(false);
     frame.setTitle("Spiritbox");
     frame.setIconImage(image);
     frame.add(tabs);
