@@ -1,0 +1,39 @@
+{
+  "Locations": [
+    "Ziwa",
+    "Seattle", 
+    "El Paso",
+    "Augusta",
+    "Lawton"
+  ],
+  "Organizations": [
+    "Weyland-Yutani Corp",
+    "Catapult Adventure Park"
+  ], 
+  "Activities": [
+    "Reconnaissance",
+    "Initial Access",
+    "Execution",
+    "Persistence",
+    "Privilege Escalation",
+    "Defense Evasion",
+    "Credential Access",
+    "Discovery",
+    "Lateral Movement",
+    "Collection",
+    "Command and Control",
+    "Exfiltration",
+    "Impact"
+  ],
+  "Sources": [
+    "Alert - SIEM Server",
+    "Alert - IDS",
+    "Alert - Anti-Virus",
+    "Log - Network Firewall",
+    "Log - Network Flow",
+    "Log - Operating System",
+    "Log - Application",
+    "People - Internal",
+    "People - External"
+  ]
+}
