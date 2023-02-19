@@ -5,7 +5,9 @@
         Add-Type -AssemblyName System.Windows.Forms
         Add-Type -AssemblyName System.Drawing
         $Form = New-Object System.Windows.Forms.Form
-        $Form.ClientSize = "400,500"
+        $Form.ClientSize = "400,500" # Width: 400, Height: 500
+        $Form.MaximizeBox = $false # disable maximizing
+        $Form.FormBorderStyle = "Fixed3D" # disable resizing
         $Form.Text = "Spiritbox"
         $Form.Icon = New-Object System.Drawing.Icon("$PSScriptRoot\ghost.ico")
         $Form.StartPosition = "CenterScreen"
