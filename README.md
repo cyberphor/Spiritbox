@@ -1,6 +1,6 @@
 # Spiritbox
 ![GitHub](https://img.shields.io/github/license/cyberphor/spiritbox)  
-A cyber 9-Line reporting tool written in Java. 
+A cyber 9-Line reporting tool written in PowerShell.
 
 ![Screenshot](/screenshot.png)
 
