@@ -11,15 +11,38 @@ filter Submit-Report {
     # TODO: include a Progress Bar dialog box
 }
 
-filter Get-Report {
+filter New-Report {
     $Report = [ordered]@{}
-    $input.Controls | 
-    Where-Object { ($_ -isnot [System.Windows.Forms.Label]) -and ($_ -isnot [System.Windows.Forms.Button]) } |
-    ForEach-Object {
-        $Report.Add($_.Name, $_.Text)
-        # TODO: combine Date and Time (e.g., @timestamp = 2016-05-23T08:05:34.853Z)
-        # TODO: Verify IP Address is an IP Address
+    $Form = $input.Controls | Where-Object { ($_ -isnot [System.Windows.Forms.Label]) -and ($_ -isnot [System.Windows.Forms.Button]) }
+
+    # combine date and time; add an Elastic-friendly @timestamp value to the report
+    $Date = $Form | Where-Object { $_.Name -eq "date" } | Select-Object -ExpandProperty Text
+    $Time = $Form | Where-Object { $_.Name -eq "time" } | Select-Object -ExpandProperty Text  
+    $Timestamp = $Date + "T" + $Time + ".000Z"
+    $Report.Add("@timestamp", $Timestamp)
+
+    # add the Location, Organization, and Activity observed to the report
+    $Form | Where-Object { $_.Name -in ("geo.name", "organization.name", "threat.tactic.name") } | ForEach-Object { $Report.Add($_.Name, $_.Text) }
+
+    # add the Attacker IP Address observed to the report
+    if ([bool]$AttackerIPAddress.Text -as [ipaddress]) {
+        $Report.Add($AttackerIPAddress, $_.Text)
+    } else {
+        Write-Host "An invalid IP address was specified."
+        return
     }
+    
+    # add the Victim IP Address observed to the report
+    if ([bool]$VictimIPAddress.Text -as [ipaddress]) {
+        $Report.Add($VictimIPAddress , $_.Text)
+    } else {
+        Write-Host "An invalid IP address was specified."
+        return
+    } 
+
+    # add the Actions Taken to the report
+    $Form | Where-Object { $_.Name -eq "threat.response.description" } | ForEach-Object { $Report.Add($_.Name, $_.Text) }
+
     return $Report | ConvertTo-Json
 }
 
@@ -176,7 +199,7 @@ function Show-Form {
     $SubmitButton.Text = "Submit"
     $SubmitButton.Size = New-Object System.Drawing.Size(185,25)
     $SubmitButton.Location = New-Object System.Drawing.Point(10,440)
-    $SubmitButton.Add_Click({$Form | Get-Report | Submit-Report})
+    $SubmitButton.Add_Click({$Form | New-Report | Submit-Report})
     $Form.Controls.Add($SubmitButton)
 
     # Cancel
