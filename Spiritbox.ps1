@@ -1,11 +1,26 @@
-﻿function Submit-Report([System.Windows.Forms.Form]$Form) {
-    $Report = @{ }
-    $Form.Controls | 
+﻿$Config = Get-Content config.json | ConvertFrom-Json
+
+filter Submit-Report {
+    $Body = $input -join "," # convert ArrayListEnumeratorSimple to a String
+    $Config.Subscribers |
+    ForEach-Object {
+        $Uri = "http://" + $_.ip + ":" + $_.port
+        Invoke-RestMethod -Method POST -Uri $Uri -ContentType "application/json" -Body $Body  | 
+        Out-Host
+    }
+    # TODO: include a Progress Bar dialog box
+}
+
+filter Get-Report {
+    $Report = [ordered]@{}
+    $input.Controls | 
     Where-Object { ($_ -isnot [System.Windows.Forms.Label]) -and ($_ -isnot [System.Windows.Forms.Button]) } |
     ForEach-Object {
-        $Field = $_.Name + ": " + $_.Text
-        Write-Host $Field
+        $Report.Add($_.Name, $_.Text)
+        # TODO: combine Date and Time (e.g., @timestamp = 2016-05-23T08:05:34.853Z)
+        # TODO: Verify IP Address is an IP Address
     }
+    return $Report | ConvertTo-Json
 }
 
 function Clear-Form([System.Windows.Forms.Form]$Form) {
@@ -13,7 +28,7 @@ function Clear-Form([System.Windows.Forms.Form]$Form) {
     Where-Object { ($_ -isnot [System.Windows.Forms.Label]) -and ($_ -isnot [System.Windows.Forms.Button]) } |
     ForEach-Object {
         if ($_ -is [System.Windows.Forms.ComboBox]) {
-            $_.Items.Clear()
+            $_.Items.Clear() # TODO
         } else {
             $_.Clear()
         }
@@ -21,8 +36,6 @@ function Clear-Form([System.Windows.Forms.Form]$Form) {
 }
 
 function Show-Form {
-    $Config = Get-Content "config.json" | ConvertFrom-Json
-
     Add-Type -AssemblyName System.Windows.Forms
     Add-Type -AssemblyName System.Drawing
     $Form = New-Object System.Windows.Forms.Form
@@ -40,10 +53,12 @@ function Show-Form {
     $DateLabel.Location = New-Object System.Drawing.Point(10,10)
     $Form.Controls.Add($DateLabel)
 
-    $DateField = New-Object System.Windows.Forms.TextBox
-    $DateField.Name = "Date"
+    $DateField = New-Object System.Windows.Forms.DateTimePicker
+    $DateField.Name = "date"
     $DateField.Size = New-Object System.Drawing.Size(260,25)
     $DateField.Location = New-Object System.Drawing.Point(130,10)
+    $DateField.Format = [Windows.Forms.DateTimePickerFormat]::Custom 
+    $DateField.CustomFormat = "yyyy-MM-dd"
     $Form.Controls.Add($DateField)
 
     # Time
@@ -52,10 +67,13 @@ function Show-Form {
     $TimeLabel.Location = New-Object System.Drawing.Point(10,35)
     $Form.Controls.Add($TimeLabel)
 
-    $TimeField = New-Object System.Windows.Forms.TextBox
-    $TimeField.Name = "Time"
+    $TimeField = New-Object System.Windows.Forms.DateTimePicker
+    $TimeField.Name = "time" 
     $TimeField.Size = New-Object System.Drawing.Size(260,25)
     $TimeField.Location = New-Object System.Drawing.Point(130,35)
+    $TimeField.Format = [Windows.Forms.DateTimePickerFormat]::Custom 
+    $TimeField.CustomFormat = "HH:mm:ss"
+    $TimeField.ShowUpDown = $true
     $Form.Controls.Add($TimeField)
             
     # Location
@@ -65,10 +83,11 @@ function Show-Form {
     $Form.Controls.Add($LocationLabel)
 
     $LocationField = New-Object System.Windows.Forms.ComboBox
-    $LocationField.Name = "Location"
+    $LocationField.Name = "geo.name"
     $LocationField.Size = New-Object System.Drawing.Size(260,25)
     $LocationField.Location = New-Object System.Drawing.Point(130,60)
     $Config.Locations | ForEach-Object {[void]$LocationField.Items.Add($_)}
+    $LocationField.SelectedIndex = 0
     $Form.Controls.Add($LocationField)
 
     # Organization
@@ -78,10 +97,11 @@ function Show-Form {
     $Form.Controls.Add($OrganizationLabel)
 
     $OrganizationField = New-Object System.Windows.Forms.ComboBox
-    $OrganizationField.Name = "Organization"
+    $OrganizationField.Name = "organization.name"
     $OrganizationField.Size = New-Object System.Drawing.Size(260,25)
     $OrganizationField.Location = New-Object System.Drawing.Point(130,85)
     $Config.Organizations | ForEach-Object {[void]$OrganizationField.Items.Add($_)}
+    $OrganizationField.SelectedIndex = 0
     $Form.Controls.Add($OrganizationField)
 
     # Activity
@@ -91,10 +111,11 @@ function Show-Form {
     $Form.Controls.Add($ActivityLabel)
 
     $ActivityField = New-Object System.Windows.Forms.ComboBox
-    $ActivityField.Name = "Activity"
+    $ActivityField.Name = "threat.tactic.name"
     $ActivityField.Size = New-Object System.Drawing.Size(260,25)
     $ActivityField.Location = New-Object System.Drawing.Point(130,110)
     $Config.Activities | ForEach-Object {[void]$ActivityField.Items.Add($_)}
+    $ActivityField.SelectedIndex = 0
     $Form.Controls.Add($ActivityField)
 
     # Source
@@ -104,10 +125,11 @@ function Show-Form {
     $Form.Controls.Add($SourceLabel)
 
     $SourceField = New-Object System.Windows.Forms.ComboBox
-    $SourceField.Name = "Source"
+    $SourceField.Name = "observer.type"
     $SourceField.Size = New-Object System.Drawing.Size(260,25)
     $SourceField.Location = New-Object System.Drawing.Point(130,135)
     $Config.Sources | ForEach-Object {[void]$SourceField.Items.Add($_)}
+    $SourceField.SelectedIndex = 0
     $Form.Controls.Add($SourceField)
 
     # Attacker IP Address
@@ -118,7 +140,7 @@ function Show-Form {
     $Form.Controls.Add($AttackerIPAddressLabel)
 
     $AttackerIPAddressField = New-Object System.Windows.Forms.TextBox
-    $AttackerIPAddressField.Name = "AttackerIpAddress"
+    $AttackerIPAddressField.Name = "source.ip"
     $AttackerIPAddressField.Size = New-Object System.Drawing.Size(260,25)
     $AttackerIPAddressField.Location = New-Object System.Drawing.Point(130,160)
     $Form.Controls.Add($AttackerIPAddressField)
@@ -130,7 +152,7 @@ function Show-Form {
     $Form.Controls.Add($VictimIPAddressLabel)
 
     $VictimIPAddressField = New-Object System.Windows.Forms.TextBox
-    $VictimIPAddressField.Name = "VictimIpAddress"
+    $VictimIPAddressField.Name = "destination.ip"
     $VictimIPAddressField.Size = New-Object System.Drawing.Size(260,25)
     $VictimIPAddressField.Location = New-Object System.Drawing.Point(130,185)
     $Form.Controls.Add($VictimIPAddressField)
@@ -142,7 +164,7 @@ function Show-Form {
     $Form.Controls.Add($ActionsTakenLabel)
 
     $ActionsTakenField = New-Object System.Windows.Forms.TextBox
-    $ActionsTakenField.Name = "ActionsTaken"
+    $ActionsTakenField.Name = "threat.response.description"
     $ActionsTakenField.Size = New-Object System.Drawing.Size(380,200)
     $ActionsTakenField.Location = New-Object System.Drawing.Point(10,235)
     $ActionsTakenField.Multiline = $true
@@ -154,7 +176,7 @@ function Show-Form {
     $SubmitButton.Text = "Submit"
     $SubmitButton.Size = New-Object System.Drawing.Size(185,25)
     $SubmitButton.Location = New-Object System.Drawing.Point(10,440)
-    $SubmitButton.Add_Click({Send-Report($Form)})
+    $SubmitButton.Add_Click({$Form | Get-Report | Submit-Report})
     $Form.Controls.Add($SubmitButton)
 
     # Cancel
@@ -162,10 +184,12 @@ function Show-Form {
     $CancelButton.Text = "Cancel"
     $CancelButton.Size = New-Object System.Drawing.Size(200,25)
     $CancelButton.Location = New-Object System.Drawing.Point(190,440)
-    $CancelButton.Add_Click({Clear-Form($Form)})
+    $CancelButton.Add_Click({Clear-Form($Form)}) # TODO
     $Form.Controls.Add($CancelButton)
 
     $Form.ShowDialog()
 }
 
 Show-Form
+# TODO: service
+# TODO: send to system tray

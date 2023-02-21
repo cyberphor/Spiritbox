@@ -1,4 +1,7 @@
 {
+  "Subscribers": [
+    {"ip": "127.0.0.1", "port": "1337", "key": "1234567890"}
+  ],
   "Locations": [
     "Ziwa",
     "Seattle", 
