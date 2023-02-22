@@ -1,18 +1,88 @@
 ﻿$Config = Get-Content config.json | ConvertFrom-Json
 
+function Show-ErrorMessage([string]$ErrorMessage) {
+    Add-Type -AssemblyName System.Windows.Forms
+    $Button = [System.Windows.Forms.MessageBoxButtons]::OK
+    $Icon = [System.Windows.Forms.MessageBoxIcon]::None
+    [System.Windows.Forms.MessageBox]::Show($ErrorMessage, "Error", $Button, $Icon) | Out-Null
+}
+
+filter Test-IPAddress {
+    $Address = [string]$input
+    try {
+        return $Address -match ($PSObject = [ipaddress]$Address)
+    } catch {
+        return $false
+    }
+}
+
 filter Submit-Report {
     $Body = $input -join "," # convert ArrayListEnumeratorSimple to a String
-    $Config.Subscribers |
-    ForEach-Object {
-        $Uri = "http://" + $_.ip + ":" + $_.port
-        Invoke-RestMethod -Method POST -Uri $Uri -ContentType "application/json" -Body $Body  | 
-        Out-Host
+    if ($Body -ne $false) {
+        $Subscribers = $Config.Subscribers
+
+        Add-Type -AssemblyName System.Windows.Forms
+        Add-Type -AssemblyName System.Drawing
+        $ProgressBarForm = New-Object System.Windows.Forms.Form
+        $ProgressBarForm.Text = "Spiritbox"
+        $ProgressBarForm.StartPosition = "CenterScreen"
+        $ProgressBarForm.Icon = New-Object System.Drawing.Icon("$PSScriptRoot\ghost.ico")
+
+        $ProgressBar = New-Object System.Windows.Forms.ProgressBar
+        $ProgressBar.Name = "Progress"
+        $ProgressBar.Value = 0
+        $ProgressBar.Style = "Blocks"
+
+        $SystemDrawingSize = New-Object System.Drawing.Size
+        $SystemDrawingSize.Width = 100
+        $SystemDrawingSize.Height = 20
+        $ProgressBar.Size = $SystemDrawingSize
+        $ProgressBar.Left = 5
+        $ProgressBar.Top = 40
+        $ProgressBarForm.Controls.Add($ProgressBar)
+
+        $ProgressBarLabel = New-Object System.Windows.Forms.Label
+        $ProgressBarLabel.Text = "Standby..."
+        $ProgressBarLabel.Left = 5
+        $ProgressBarLabel.Top = 10
+        $ProgressBarLabel.Width = 500 - 20
+        $ProgressBarForm.Controls.Add($ProgressBarLabel)
+
+        $ProgressBarForm.Show() | Out-Null
+        $ProgressBarForm.Focus() | Out-Null
+        $ProgressBarLabel.Text = "Standby..."
+        $ProgressBarForm.Refresh()
+
+        $i = 0
+        $Subscribers |
+        ForEach-Object {
+            $ProgressBarLabel.Text = "Notifying: " + $_.Name
+            $ProgressBarForm.Refresh()
+            Start-Sleep -Seconds 1
+
+            try {
+                $Uri = "http://" + $_.ip + ":" + $_.port
+                $SubscriberResponse = Invoke-RestMethod -Method POST -Uri $Uri -ContentType "application/json" -Body $Body
+            } catch {
+                $SubscriberResponse = $_
+            }
+            $i++
+            [int]$Percent = ($i / $Subscribers.count) * 100
+            $ProgressBar.Value = $Percent
+
+            $ProgressBarLabel.Text = "Subscriber Response: " + $SubscriberResponse
+            $ProgressBarForm.Refresh()
+            Start-Sleep -Seconds 1
+        }
+
+        # TODO: add Cancel button to interrupt progress
+        $ProgressBarForm.Close()
     }
-    # TODO: include a Progress Bar dialog box
 }
 
 filter New-Report {
     $Report = [ordered]@{}
+    $ReportHasNoErrors = $true
     $Form = $input.Controls | Where-Object { ($_ -isnot [System.Windows.Forms.Label]) -and ($_ -isnot [System.Windows.Forms.Button]) }
 
     # combine date and time; add an Elastic-friendly @timestamp value to the report
@@ -25,25 +95,41 @@ filter New-Report {
     $Form | Where-Object { $_.Name -in ("geo.name", "organization.name", "threat.tactic.name") } | ForEach-Object { $Report.Add($_.Name, $_.Text) }
 
     # add the Attacker IP Address observed to the report
-    if ([bool]$AttackerIPAddress.Text -as [ipaddress]) {
-        $Report.Add($AttackerIPAddress, $_.Text)
+    $AttackerIPAddress = $Form | Where-Object { $_.Name -eq "source.ip" }
+    if ($AttackerIPAddress.Text | Test-IPAddress) {
+        $Report.Add($AttackerIPAddress.Name, $AttackerIPAddress.Text)
     } else {
-        Write-Host "An invalid IP address was specified."
-        return
+        $ReportHasNoErrors = $false
+        if ($AttackerIPAddress.Text -eq "") {
+            $ErrorMessage = 'No IP address was specified for the "Attacker IP Address" field.'
+        } else {
+            $ErrorMessage = "An invalid IP address was specified: " + $AttackerIPAddress.Text
+        }
+        Show-ErrorMessage($ErrorMessage)
     }
     
     # add the Victim IP Address observed to the report
-    if ([bool]$VictimIPAddress.Text -as [ipaddress]) {
-        $Report.Add($VictimIPAddress , $_.Text)
+    $VictimIPAddress = $Form | Where-Object { $_.Name -eq "destination.ip" }
+    if ($VictimIPAddress.Text | Test-IPAddress) {
+        $Report.Add($VictimIPAddress.Name, $VictimIPAddress.Text)
     } else {
-        Write-Host "An invalid IP address was specified."
-        return
+        $ReportHasNoErrors = $false
+        if ($VictimIPAddress.Text -eq "") {
+            $ErrorMessage = 'No IP address was specified for the "Victim IP Address" field.'    
+        } else {
+            $ErrorMessage = "An invalid IP address was specified: " + $VictimIPAddress.Text
+        }
+        Show-ErrorMessage($ErrorMessage)
     } 
 
     # add the Actions Taken to the report
     $Form | Where-Object { $_.Name -eq "threat.response.description" } | ForEach-Object { $Report.Add($_.Name, $_.Text) }
 
-    return $Report | ConvertTo-Json
+    if ($ReportHasNoErrors) {
+        return $Report | ConvertTo-Json
+    } else {
+        return $false
+    }
 }
 
 function Clear-Form([System.Windows.Forms.Form]$Form) {
