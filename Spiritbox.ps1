@@ -92,7 +92,7 @@ filter New-Report {
     $Report.Add("@timestamp", $Timestamp)
 
     # add the Location, Organization, and Activity observed to the report
-    $Form | Where-Object { $_.Name -in ("geo.name", "organization.name", "threat.tactic.name") } | ForEach-Object { $Report.Add($_.Name, $_.Text) }
+    $Form | Where-Object { $_.Name -in ("geo.name", "organization.name", "threat.tactic.name", "observer.type") } | ForEach-Object { $Report.Add($_.Name, $_.Text) }
 
     # add the Attacker IP Address observed to the report
     $AttackerIPAddress = $Form | Where-Object { $_.Name -eq "source.ip" }
