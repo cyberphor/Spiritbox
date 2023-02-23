@@ -20,7 +20,7 @@ Below is an example of the JSON objects created by Spiritbox. The fields may cha
 
 ### Screenshots
 **Input Validation**  
-![Input Validation](/screenshots/screenshot-input-validation.PNG)
+![Input Validation](/screenshots/screenshot-input-validation.png)
 
 **Progress Bar**  
 ![Progress Bar](/screenshots/screenshot-progress-bar.png)
