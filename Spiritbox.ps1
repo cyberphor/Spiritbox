@@ -24,6 +24,7 @@ filter Submit-Report {
         Add-Type -AssemblyName System.Windows.Forms
         Add-Type -AssemblyName System.Drawing
         $ProgressBarForm = New-Object System.Windows.Forms.Form
+        $ProgressBarForm.ClientSize = "240,120"
         $ProgressBarForm.Text = "Spiritbox"
         $ProgressBarForm.StartPosition = "CenterScreen"
         $ProgressBarForm.Icon = New-Object System.Drawing.Icon("$PSScriptRoot\ghost.ico")
@@ -34,24 +35,24 @@ filter Submit-Report {
         $ProgressBar.Style = "Blocks"
 
         $SystemDrawingSize = New-Object System.Drawing.Size
-        $SystemDrawingSize.Width = 100
+        $SystemDrawingSize.Width = 220
         $SystemDrawingSize.Height = 20
         $ProgressBar.Size = $SystemDrawingSize
-        $ProgressBar.Left = 5
-        $ProgressBar.Top = 40
+        $ProgressBar.Left = 10
+        $ProgressBar.Top = 10
         $ProgressBarForm.Controls.Add($ProgressBar)
 
         $ProgressBarLabel = New-Object System.Windows.Forms.Label
-        $ProgressBarLabel.Text = "Standby..."
-        $ProgressBarLabel.Left = 5
-        $ProgressBarLabel.Top = 10
-        $ProgressBarLabel.Width = 500 - 20
+        $ProgressBarLabel.Width = 220
+        $ProgressBarLabel.Height = 60
+        $ProgressBarLabel.Left = 10
+        $ProgressBarLabel.Top = 35
         $ProgressBarForm.Controls.Add($ProgressBarLabel)
 
         $ProgressBarForm.Show() | Out-Null
         $ProgressBarForm.Focus() | Out-Null
-        $ProgressBarLabel.Text = "Standby..."
-        $ProgressBarForm.Refresh()
+        #$ProgressBarLabel.Text = "Standby..."
+        #$ProgressBarForm.Refresh()
 
         $i = 0
         $Subscribers |
@@ -63,16 +64,18 @@ filter Submit-Report {
             try {
                 $Uri = "http://" + $_.ip + ":" + $_.port
                 $SubscriberResponse = Invoke-RestMethod -Method POST -Uri $Uri -ContentType "application/json" -Body $Body
+                $Seconds = 1
             } catch {
                 $SubscriberResponse = $_
+                $Seconds = 3
             }
             $i++
             [int]$Percent = ($i / $Subscribers.count) * 100
             $ProgressBar.Value = $Percent
 
-            $ProgressBarLabel.Text = "Subscriber Response: " + $SubscriberResponse
+            $ProgressBarLabel.Text = "Response: " + $SubscriberResponse
             $ProgressBarForm.Refresh()
-            Start-Sleep -Seconds 1
+            Start-Sleep -Seconds $Seconds
         }
 
         # TODO: add Cancel button to interrupt progress
@@ -89,7 +92,7 @@ filter New-Report {
     $Date = $Form | Where-Object { $_.Name -eq "date" } | Select-Object -ExpandProperty Text
     $Time = $Form | Where-Object { $_.Name -eq "time" } | Select-Object -ExpandProperty Text  
     $Timestamp = $Date + "T" + $Time + ".000Z"
-    $Report.Add("@timestamp", $Timestamp)
+    $Report.Add("threat.indicator.last_seen", $Timestamp)
 
     # add the Location, Organization, and Activity observed to the report
     $Form | Where-Object { $_.Name -in ("geo.name", "organization.name", "threat.tactic.name", "observer.type") } | ForEach-Object { $Report.Add($_.Name, $_.Text) }

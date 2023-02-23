@@ -1,15 +1,11 @@
 {
   "Subscribers": [
-    {"name": "US-CERT 0", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"},
-    {"name": "US-CERT 1", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"},
-    {"name": "US-CERT 2", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"},
-    {"name": "US-CERT 3", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"},
-    {"name": "US-CERT 4", "ip": "127.0.0.1", "port": "4444", "key": "1234567890"},
-    {"name": "US-CERT 5", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"},
-    {"name": "US-CERT 6", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"},
-    {"name": "US-CERT 7", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"},
-    {"name": "US-CERT 8", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"},
-    {"name": "US-CERT 9", "ip": "127.0.0.1", "port": "4444", "key": "1234567890"}
+    {"name": "BDE", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"}, 
+    {"name": "DIV", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"}, 
+    {"name": "Corps", "ip": "127.0.0.2", "port": "4444", "key": "1234567890"}, 
+    {"name": "NEC", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"}, 
+    {"name": "RCC", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"}, 
+    {"name": "ACOIC", "ip": "127.0.0.1", "port": "4444", "key": "1234567890"}
   ],
   "Locations": [
     "Ziwa",
@@ -20,7 +16,8 @@
   ],
   "Organizations": [
     "Weyland-Yutani Corp",
-    "Catapult Adventure Park"
+    "Cyberdyne Systems",
+    "Evil Corp"
   ], 
   "Activities": [
     "Reconnaissance",
@@ -38,14 +35,10 @@
     "Impact"
   ],
   "Sources": [
-    "Alert - SIEM Server",
-    "Alert - IDS",
-    "Alert - Anti-Virus",
-    "Log - Network Firewall",
-    "Log - Network Flow",
-    "Log - Operating System",
-    "Log - Application",
-    "People - Internal",
-    "People - External"
+    "Firewall",
+    "IDS",
+    "SIEM Server",
+    "EDR Agent",
+    "Person"
   ]
 }
