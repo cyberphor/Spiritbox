@@ -51,8 +51,6 @@ filter Submit-Report {
 
         $ProgressBarForm.Show() | Out-Null
         $ProgressBarForm.Focus() | Out-Null
-        #$ProgressBarLabel.Text = "Standby..."
-        #$ProgressBarForm.Refresh()
 
         $i = 0
         $Subscribers |
@@ -137,14 +135,20 @@ filter New-Report {
 
 function Clear-Form([System.Windows.Forms.Form]$Form) {
     $Form.Controls | 
-    Where-Object { ($_ -isnot [System.Windows.Forms.Label]) -and ($_ -isnot [System.Windows.Forms.Button]) } |
+    Where-Object { 
+        ($_ -isnot [System.Windows.Forms.Label]) -and 
+        ($_ -isnot [System.Windows.Forms.Button])
+    } |
     ForEach-Object {
-        if ($_ -is [System.Windows.Forms.ComboBox]) {
-            $_.Items.Clear() # TODO
-        } else {
+        if ($_ -is [System.Windows.Forms.DateTimePicker]) { 
+            $_.Value = Get-Date 
+        } elseif ($_ -is [System.Windows.Forms.ComboBox]) {
+            $_.SelectedIndex = 0
+        } elseif ($_ -is [System.Windows.Forms.TextBox]) {
             $_.Clear()
         }
     }
+    $Form.Refresh()
 }
 
 function Show-Form {
@@ -212,7 +216,7 @@ function Show-Form {
     $OrganizationField.Name = "organization.name"
     $OrganizationField.Size = New-Object System.Drawing.Size(260,25)
     $OrganizationField.Location = New-Object System.Drawing.Point(130,85)
-    $Config.Organizations | ForEach-Object {[void]$OrganizationField.Items.Add($_)}
+    $Config.Organizations | ForEach-Object {$OrganizationField.Items.Add($_)}
     $OrganizationField.SelectedIndex = 0
     $Form.Controls.Add($OrganizationField)
 
@@ -288,16 +292,18 @@ function Show-Form {
     $SubmitButton.Text = "Submit"
     $SubmitButton.Size = New-Object System.Drawing.Size(185,25)
     $SubmitButton.Location = New-Object System.Drawing.Point(10,440)
-    $SubmitButton.Add_Click({$Form | New-Report | Submit-Report})
+    $SubmitButton.Add_Click({$Form | New-Report | Submit-Report; Clear-Form($Form)})
+    # TODO: change pipeline above
+    # TODO: add logging function so analysts known what was sent
     $Form.Controls.Add($SubmitButton)
 
-    # Cancel
-    $CancelButton = New-Object System.Windows.Forms.Button
-    $CancelButton.Text = "Cancel"
-    $CancelButton.Size = New-Object System.Drawing.Size(200,25)
-    $CancelButton.Location = New-Object System.Drawing.Point(190,440)
-    $CancelButton.Add_Click({Clear-Form($Form)}) # TODO
-    $Form.Controls.Add($CancelButton)
+    # Clear
+    $ClearButton = New-Object System.Windows.Forms.Button
+    $ClearButton.Text = "Clear"
+    $ClearButton.Size = New-Object System.Drawing.Size(200,25)
+    $ClearButton.Location = New-Object System.Drawing.Point(190,440)
+    $ClearButton.Add_Click({Clear-Form($Form)}) 
+    $Form.Controls.Add($ClearButton)
 
     $Form.ShowDialog()
 }
