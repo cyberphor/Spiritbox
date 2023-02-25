@@ -1,5 +1,17 @@
 ﻿$Config = Get-Content config.json | ConvertFrom-Json
 
+function Write-SpiritboxEventLog {
+    Param(
+        [Parameter(Mandatory)][ValidateSet("Report","Error","Sent","Recieved")]$Prefix,
+        [Parameter(Mandatory)][string]$Message
+    )
+    $Date = Get-Date
+    $Time = $Date.ToString("yyyy-MM-ddTHH:mm:ss.fffZ") 
+    $SpiritboxEventLog = "spiritbox-" + $Date.ToString("yyyy-MM-dd") + ".log"
+    $SpiritboxEvent = $Time, $Prefix, $Message | ForEach-Object { "[" + $_ + "]" }
+    $SpiritboxEvent -join " " | Out-File -Append -FilePath $SpiritboxEventLog
+}
+
 function Show-ErrorMessage([string]$ErrorMessage) {
     Add-Type -AssemblyName System.Windows.Forms
     $Button = [System.Windows.Forms.MessageBoxButtons]::OK
@@ -56,6 +68,7 @@ filter Submit-Report {
         $Subscribers |
         ForEach-Object {
             $ProgressBarLabel.Text = "Notifying: " + $_.Name
+            Write-SpiritboxEventLog -Prefix Sent -Message $ProgressBarLabel.Text
             $ProgressBarForm.Refresh()
             Start-Sleep -Seconds 1
 
@@ -63,9 +76,11 @@ filter Submit-Report {
                 $Uri = "http://" + $_.ip + ":" + $_.port
                 $SubscriberResponse = Invoke-RestMethod -Method POST -Uri $Uri -ContentType "application/json" -Body $Body
                 $Seconds = 1
+                Write-SpiritboxEventLog -Prefix Recieved -Message $SubscriberResponse
             } catch {
                 $SubscriberResponse = $_
                 $Seconds = 3
+                Write-SpiritboxEventLog -Prefix Error -Message $SubscriberResponse
             }
             $i++
             [int]$Percent = ($i / $Subscribers.count) * 100
@@ -81,7 +96,7 @@ filter Submit-Report {
     }
 }
 
-filter New-Report {
+filter New-SpiritboxReport {
     $Report = [ordered]@{}
     $ReportHasNoErrors = $true
     $Form = $input.Controls | Where-Object { ($_ -isnot [System.Windows.Forms.Label]) -and ($_ -isnot [System.Windows.Forms.Button]) }
@@ -106,6 +121,7 @@ filter New-Report {
         } else {
             $ErrorMessage = "An invalid IP address was specified: " + $AttackerIPAddress.Text
         }
+        Write-SpiritboxEventLog -Prefix Error -Message $ErrorMessage
         Show-ErrorMessage($ErrorMessage)
     }
     
@@ -120,6 +136,7 @@ filter New-Report {
         } else {
             $ErrorMessage = "An invalid IP address was specified: " + $VictimIPAddress.Text
         }
+        Write-SpiritboxEventLog -Prefix Error -Message $ErrorMessage
         Show-ErrorMessage($ErrorMessage)
     } 
 
@@ -127,7 +144,9 @@ filter New-Report {
     $Form | Where-Object { $_.Name -eq "threat.response.description" } | ForEach-Object { $Report.Add($_.Name, $_.Text) }
 
     if ($ReportHasNoErrors) {
-        return $Report | ConvertTo-Json
+        $Report = $Report | ConvertTo-Json -Compress
+        Write-SpiritboxEventLog -Prefix Report -Message $Report
+        return $Report
     } else {
         return $false
     }
@@ -151,7 +170,7 @@ function Clear-Form([System.Windows.Forms.Form]$Form) {
     $Form.Refresh()
 }
 
-function Show-Form {
+function Start-Spiritbox {
     Add-Type -AssemblyName System.Windows.Forms
     Add-Type -AssemblyName System.Drawing
     $Form = New-Object System.Windows.Forms.Form
@@ -292,7 +311,7 @@ function Show-Form {
     $SubmitButton.Text = "Submit"
     $SubmitButton.Size = New-Object System.Drawing.Size(185,25)
     $SubmitButton.Location = New-Object System.Drawing.Point(10,440)
-    $SubmitButton.Add_Click({$Form | New-Report | Submit-Report; Clear-Form($Form)})
+    $SubmitButton.Add_Click({$Form | New-SpiritboxReport | Submit-Report; Clear-Form($Form)})
     # TODO: change pipeline above
     # TODO: add logging function so analysts known what was sent
     $Form.Controls.Add($SubmitButton)
@@ -308,6 +327,5 @@ function Show-Form {
     $Form.ShowDialog()
 }
 
-Show-Form
 # TODO: service
 # TODO: send to system tray
