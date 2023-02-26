@@ -1,6 +1,6 @@
 # Spiritbox
 ![GitHub](https://img.shields.io/github/license/cyberphor/spiritbox)  
-Spiritbox is a tool for notifying others about cyber security incidents. 
+Spiritbox is a PowerShell-based User Interface (UI) for sending Indicators of Compromise (IOCs) to subscribers. 
 
 ![Screenshot](/screenshots/screenshot.png)
 
