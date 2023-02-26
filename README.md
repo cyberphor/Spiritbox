@@ -1,6 +1,6 @@
 # Spiritbox
 ![GitHub](https://img.shields.io/github/license/cyberphor/spiritbox)  
-Spiritbox is a PowerShell-based User Interface (UI) for sending Indicators of Compromise (IOCs) to subscribers. 
+Spiritbox is a PowerShell module and User Interface (UI) for sending Indicators of Compromise (IOCs) to subscribers. 
 
 ![Screenshot](/screenshots/screenshot.png)
 
