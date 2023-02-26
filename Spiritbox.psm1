@@ -286,8 +286,7 @@ function Show-SpiritboxForm {
     $SourceField.SelectedIndex = 0
     $Form.Controls.Add($SourceField)
 
-    # TODO
-    # - add DataGridView
+    # TODO: add DataGridView
 
     # Attacker IP Address
     $AttackerIPAddressLabel = New-Object System.Windows.Forms.Label
@@ -344,9 +343,7 @@ function Show-SpiritboxForm {
     $ResetButton.Text = "Reset"
     $ResetButton.Size = New-Object System.Drawing.Size(200,25)
     $ResetButton.Location = New-Object System.Drawing.Point(190,440)
-    $ResetButton.Add_Click({
-        Reset-SpiritboxForm -Form $Form
-    }) 
+    $ResetButton.Add_Click({Reset-SpiritboxForm -Form $Form}) 
     $Form.Controls.Add($ResetButton)
 
     # show form
