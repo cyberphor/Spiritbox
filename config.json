@@ -40,5 +40,21 @@
     "SIEM Server",
     "EDR Agent",
     "Person"
+  ],
+  "Indicators": [
+    {"IndicatorType": "ipv4-addr", "ValueType": "ipv4"},
+    {"IndicatorType": "ipv6-addr", "ValueType": "ipv6"},
+    {"IndicatorType": "directory", "ValueType": "string"},
+    {"IndicatorType": "domain-name", "ValueType": "string"},
+    {"IndicatorType": "email-addr", "ValueType": "string"},
+    {"IndicatorType": "file", "ValueType": "string"},
+    {"IndicatorType": "mac-addr", "ValueType": "mac"},
+    {"IndicatorType": "mutex", "ValueType": "string"},
+    {"IndicatorType": "port", "ValueType": "int"},
+    {"IndicatorType": "process", "ValueType": "string"},
+    {"IndicatorType": "software", "ValueType": "string"},
+    {"IndicatorType": "url", "ValueType": "string"},
+    {"IndicatorType": "user-account", "ValueType": "string"},
+    {"IndicatorType": "windows-registry-key", "ValueType": "string"}
   ]
 }

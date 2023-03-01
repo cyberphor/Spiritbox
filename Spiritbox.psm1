@@ -1,4 +1,5 @@
-﻿try {
+﻿# TODO: add GitHub Test Action
+try {
     Add-Type -AssemblyName PresentationFramework
     Add-Type -AssemblyName System.Drawing
     Add-Type -AssemblyName System.Windows.Forms
@@ -30,9 +31,7 @@ function Write-SpiritboxEventLog {
 }
 
 function Show-SpiritboxError {
-    Param(
-        [string]$Message
-    )
+    Param([string]$Message)
     # TODO: add Spiritbox icon and make "Error" the label inside the dialog box
     $Button = [System.Windows.Forms.MessageBoxButtons]::OK
     $Icon = [System.Windows.Forms.MessageBoxIcon]::None
@@ -60,24 +59,18 @@ filter Submit-SpiritboxReport {
         $ProgressBarForm.Icon = $Icon
 
         # Progress Bar
-        $SystemDrawingSize = New-Object System.Drawing.Size
-        $SystemDrawingSize.Width = 220
-        $SystemDrawingSize.Height = 20
         $ProgressBar = New-Object System.Windows.Forms.ProgressBar
         $ProgressBar.Name = "Progress"
-        $ProgressBar.Size = $SystemDrawingSize
-        $ProgressBar.Left = 10
-        $ProgressBar.Top = 10
+        $ProgressBar.Size = "220,20"
+        $ProgressBar.Location = "10,10"
         $ProgressBar.Style = "Blocks"
         $ProgressBar.Value = 0
         $ProgressBarForm.Controls.Add($ProgressBar)
 
         # Progress Bar Label
         $ProgressBarLabel = New-Object System.Windows.Forms.Label
-        $ProgressBarLabel.Width = 220
-        $ProgressBarLabel.Height = 60
-        $ProgressBarLabel.Left = 10
-        $ProgressBarLabel.Top = 35
+        $ProgressBarLabel.Size = "220,60"
+        $ProgressBarLabel.Location = "10,35"
         $ProgressBarForm.Controls.Add($ProgressBarLabel)
 
         # Loop
@@ -113,9 +106,7 @@ filter Submit-SpiritboxReport {
 }
 
 function Reset-SpiritboxForm {
-    Param(
-        [System.Windows.Forms.Form]$Form
-    )
+    Param([System.Windows.Forms.Form]$Form)
     $Form.Controls | 
     Where-Object { 
         ($_ -isnot [System.Windows.Forms.Label]) -and 
@@ -137,6 +128,7 @@ filter New-SpiritboxReport {
     # Report
     $Report = [ordered]@{}
     $ReportHasNoErrors = $true
+    # TODO: add logic to handle DataGridView cells (observer type, indicator type, indicator values)
     $Form = $input.Controls | Where-Object { ($_ -isnot [System.Windows.Forms.Label]) -and ($_ -isnot [System.Windows.Forms.Button]) }
 
     # combine date and time into an Elastic-friendly @timestamp value
@@ -193,191 +185,191 @@ filter New-SpiritboxReport {
 function Show-SpiritboxForm {
     # Form
     $Form = New-Object System.Windows.Forms.Form
-    $Form.ClientSize = "400,500" # Width: 400, Height: 500
+    $Form.ClientSize = "400,670" # Width: 400, Height: 500
     $Form.MaximizeBox = $false # disable maximizing
     $Form.FormBorderStyle = "Fixed3D" # disable resizing
     $Form.Text = "Spiritbox"
     $Form.Icon = New-Object System.Drawing.Icon("$PSScriptRoot\ghost.ico")
     $Form.StartPosition = "CenterScreen"
 
-    # Date
+    # Date Label
     $DateLabel = New-Object System.Windows.Forms.Label
     $DateLabel.Text = "Date"
-    $DateLabel.Size = New-Object System.Drawing.Size(120,25)
-    $DateLabel.Location = New-Object System.Drawing.Point(10,10)
+    $DateLabel.Size = "120,25"
+    $DateLabel.Location = "10,10"
     $Form.Controls.Add($DateLabel)
 
+    # Date Field
     $DateField = New-Object System.Windows.Forms.DateTimePicker
     $DateField.Name = "date"
-    $DateField.Size = New-Object System.Drawing.Size(260,25)
-    $DateField.Location = New-Object System.Drawing.Point(130,10)
+    $DateField.Size = "260,25"
+    $DateField.Location = "130,10"
     $DateField.Format = [Windows.Forms.DateTimePickerFormat]::Custom 
     $DateField.CustomFormat = "yyyy-MM-dd"
     $Form.Controls.Add($DateField)
 
-    # Time
+    # Time Label
     $TimeLabel = New-Object System.Windows.Forms.Label
     $TimeLabel.Text = "Time"
-    $TimeLabel.Location = New-Object System.Drawing.Point(10,35)
+    $TimeLabel.Location = "10,35"
     $Form.Controls.Add($TimeLabel)
 
+    # Time Field
     $TimeField = New-Object System.Windows.Forms.DateTimePicker
     $TimeField.Name = "time" 
-    $TimeField.Size = New-Object System.Drawing.Size(260,25)
-    $TimeField.Location = New-Object System.Drawing.Point(130,35)
+    $TimeField.Size = "260,25"
+    $TimeField.Location = "130,35"
     $TimeField.Format = [Windows.Forms.DateTimePickerFormat]::Custom 
     $TimeField.CustomFormat = "HH:mm:ss"
     $TimeField.ShowUpDown = $true
     $Form.Controls.Add($TimeField)
             
-    # Location
+    # Location Label
     $LocationLabel = New-Object System.Windows.Forms.Label
     $LocationLabel.Text = "Location"
-    $LocationLabel.Location = New-Object System.Drawing.Point(10,60)
+    $LocationLabel.Location = "10,60"
     $Form.Controls.Add($LocationLabel)
 
+    # Location Field
     $LocationField = New-Object System.Windows.Forms.ComboBox
     $LocationField.Name = "geo.name"
-    $LocationField.Size = New-Object System.Drawing.Size(260,25)
-    $LocationField.Location = New-Object System.Drawing.Point(130,60)
+    $LocationField.Size = "260,25"
+    $LocationField.Location = "130,60"
     $Config.Locations | ForEach-Object {[void]$LocationField.Items.Add($_)} # void is used so no output is returned during each add
     $LocationField.SelectedIndex = 0
     $Form.Controls.Add($LocationField)
 
-    # Organization
+    # Organization Label
     $OrganizationLabel = New-Object System.Windows.Forms.Label
     $OrganizationLabel.Text = "Organization"
-    $OrganizationLabel.Location = New-Object System.Drawing.Point(10,85)
+    $OrganizationLabel.Location = "10,85"
     $Form.Controls.Add($OrganizationLabel)
 
+    # Organization Field
     $OrganizationField = New-Object System.Windows.Forms.ComboBox
     $OrganizationField.Name = "organization.name"
-    $OrganizationField.Size = New-Object System.Drawing.Size(260,25)
-    $OrganizationField.Location = New-Object System.Drawing.Point(130,85)
+    $OrganizationField.Size = "260,25"
+    $OrganizationField.Location = "130,85"
     $Config.Organizations | ForEach-Object {[void]$OrganizationField.Items.Add($_)} # void is used so no output is returned during each add
     $OrganizationField.SelectedIndex = 0
     $Form.Controls.Add($OrganizationField)
 
-    # Activity
+    # Activity Label
     $ActivityLabel = New-Object System.Windows.Forms.Label
     $ActivityLabel.Text = "Activity"
-    $ActivityLabel.Location = New-Object System.Drawing.Point(10,110)
+    $ActivityLabel.Location = "10,110"
     $Form.Controls.Add($ActivityLabel)
 
+    # Activity Field
     $ActivityField = New-Object System.Windows.Forms.ComboBox
     $ActivityField.Name = "threat.tactic.name"
-    $ActivityField.Size = New-Object System.Drawing.Size(260,25)
-    $ActivityField.Location = New-Object System.Drawing.Point(130,110)
+    $ActivityField.Size = "260,25"
+    $ActivityField.Location = "130,110"
     $Config.Activities | ForEach-Object {[void]$ActivityField.Items.Add($_)} # void is used so no output is returned during each add
     $ActivityField.SelectedIndex = 0
     $Form.Controls.Add($ActivityField)
 
-    # Source
-    $SourceLabel = New-Object System.Windows.Forms.Label
-    $SourceLabel.Text = "Source"
-    $SourceLabel.Location = New-Object System.Drawing.Point(10,135)
-    $Form.Controls.Add($SourceLabel)
+    # Indicators DataGridView
+    $IndicatorsDataGridView = New-Object System.Windows.Forms.DataGridView
+    $IndicatorsDataGridView.Size = "380,245"
+    $IndicatorsDataGridView.Location = "10,145"
+    $IndicatorsDataGridView.RowHeadersVisible = $false # don't show first column
+    $IndicatorsDataGridView.AllowUserToAddRows = $false
+    $IndicatorsDataGridView.AllowUserToResizeRows = $false
+    $IndicatorsDataGridView.ColumnHeadersVisible = $true
+    $IndicatorsDataGridView.AutoSizeColumnsMode = "Fill"
 
-    $SourceField = New-Object System.Windows.Forms.ComboBox
-    $SourceField.Name = "observer.type"
-    $SourceField.Size = New-Object System.Drawing.Size(260,25)
-    $SourceField.Location = New-Object System.Drawing.Point(130,135)
-    $Config.Sources | ForEach-Object {[void]$SourceField.Items.Add($_)} # void is used so no output is returned during each add
-    $SourceField.SelectedIndex = 0
-    $Form.Controls.Add($SourceField)
+    # Indicators DataGridView: Observer Types Column
+    $ObserverTypes = $Config.Sources
+    $ObserverTypesColumn = New-Object System.Windows.Forms.DataGridViewComboBoxColumn
+    $ObserverTypesColumn.Name = "Observer Type"
+    $ObserverTypesColumn.DataSource = $IndicatorTypes
+    $ObserverTypesColumn.DefaultCellStyle.NullValue = $ObserverTypes[0]
+    $IndicatorsDataGridView.Columns.Add($ObserverTypesColumn)
 
-    # TODO: add DataGridView
+    # Indicators DataGridView: Indicator Types Column
+    $IndicatorTypes = $Config.Indicators.IndicatorType
+    $IndicatorTypesColumn = New-Object System.Windows.Forms.DataGridViewComboBoxColumn
+    $IndicatorTypesColumn.Name = "Indicator Type"
+    $IndicatorTypesColumn.DataSource = $IndicatorTypes
+    $IndicatorTypesColumn.DefaultCellStyle.NullValue = $IndicatorTypes[0]
+    $IndicatorsDataGridView.Columns.Add($IndicatorTypesColumn)
+    # TODO: add ability to copy/paste from a spreadsheet
 
-    # Attacker IP Address
-    $AttackerIPAddressLabel = New-Object System.Windows.Forms.Label
-    $AttackerIPAddressLabel.Text = "Attacker IP Address"
-    $AttackerIPAddressLabel.Size = New-Object System.Drawing.Size(120,20)
-    $AttackerIPAddressLabel.Location = New-Object System.Drawing.Point(10,160)
-    $Form.Controls.Add($AttackerIPAddressLabel)
+    # Indicators DataGridView: Indicator Values Column
+    $IndicatorValues = $Config.Indicators.ValueType
+    $IndicatorValuesColumn = New-Object System.Windows.Forms.DataGridViewTextBoxColumn
+    $IndicatorValuesColumn.Name = "Indicator Value"
+    $IndicatorsDataGridView.Columns.Add($IndicatorValuesColumn)
+    $IndicatorsDataGridView.RowCount = 10
+    $Form.Controls.Add($IndicatorsDataGridView)
 
-    $AttackerIPAddressField = New-Object System.Windows.Forms.TextBox
-    $AttackerIPAddressField.Name = "source.ip"
-    $AttackerIPAddressField.Size = New-Object System.Drawing.Size(260,25)
-    $AttackerIPAddressField.Location = New-Object System.Drawing.Point(130,160)
-    $Form.Controls.Add($AttackerIPAddressField)
-
-    # Victim IP Address
-    $VictimIPAddressLabel = New-Object System.Windows.Forms.Label
-    $VictimIPAddressLabel.Text = "Victim IP Address"
-    $VictimIPAddressLabel.Location = New-Object System.Drawing.Point(10,185)
-    $Form.Controls.Add($VictimIPAddressLabel)
-
-    $VictimIPAddressField = New-Object System.Windows.Forms.TextBox
-    $VictimIPAddressField.Name = "destination.ip"
-    $VictimIPAddressField.Size = New-Object System.Drawing.Size(260,25)
-    $VictimIPAddressField.Location = New-Object System.Drawing.Point(130,185)
-    $Form.Controls.Add($VictimIPAddressField)
-
-    # Actions Taken
+    # Actions Taken Label
     $ActionsTakenLabel = New-Object System.Windows.Forms.Label
     $ActionsTakenLabel.Text = "Actions Taken"
-    $ActionsTakenLabel.Location = New-Object System.Drawing.Point(10,210)
+    $ActionsTakenLabel.Location = "10,400" 
     $Form.Controls.Add($ActionsTakenLabel)
 
+    # Actions Taken Field
     $ActionsTakenField = New-Object System.Windows.Forms.TextBox
     $ActionsTakenField.Name = "threat.response.description"
-    $ActionsTakenField.Size = New-Object System.Drawing.Size(380,200)
-    $ActionsTakenField.Location = New-Object System.Drawing.Point(10,235)
+    $ActionsTakenField.Size = "380,200"
+    $ActionsTakenField.Location = "10,425"
     $ActionsTakenField.Multiline = $true
     $ActionsTakenField.AcceptsReturn = $true
     $Form.Controls.Add($ActionsTakenField)
 
-    # Submit
+    # Submit Button
     $SubmitButton = New-Object System.Windows.Forms.Button
     $SubmitButton.Text = "Submit"
-    $SubmitButton.Size = New-Object System.Drawing.Size(185,25)
-    $SubmitButton.Location = New-Object System.Drawing.Point(10,440)
+    $SubmitButton.Size = "185,25"
+    $SubmitButton.Location = "10,630"
     $SubmitButton.Add_Click({
         $Form | New-SpiritboxReport | Submit-SpiritboxReport
         Reset-SpiritboxForm -Form $Form
     })
     $Form.Controls.Add($SubmitButton)
 
-    # Reset
+    # Reset Button
     $ResetButton = New-Object System.Windows.Forms.Button
     $ResetButton.Text = "Reset"
-    $ResetButton.Size = New-Object System.Drawing.Size(200,25)
-    $ResetButton.Location = New-Object System.Drawing.Point(190,440)
+    $ResetButton.Size = "200,25"
+    $ResetButton.Location = "190,630"
     $ResetButton.Add_Click({Reset-SpiritboxForm -Form $Form}) 
     $Form.Controls.Add($ResetButton)
 
-    # show form
-    $Form.ShowDialog() | Out-Null # send dialog output (e.g., which button was pressed) to null
+    # Show Form
+    $Form.ShowDialog() | Out-Null # Send dialog output (e.g., which button was pressed) to null
 }
 
 function Start-Spiritbox {
-    # notify icon
+    # System Tray Icon
     $NotifyIcon = New-Object System.Windows.Forms.NotifyIcon
     $NotifyIcon.Text = "Spiritbox"
     $NotifyIcon.Icon = $Icon
     $NotifyIcon.ContextMenu = New-Object System.Windows.Forms.ContextMenu
 
-    # new Spiritbox Report menu item
+    # Menu Item 1: New Report
     $NewReport = New-Object System.Windows.Forms.MenuItem
     $NewReport.Enabled = $true
     $NewReport.Text = "New Report"
     $NewReport.Add_Click({Show-SpiritboxForm})
     $NotifyIcon.ContextMenu.MenuItems.AddRange($NewReport)
 
-    # show Spiritbox Log menu item
+    # Menu Item 2: Show Log
     $ShowLog = New-Object System.Windows.Forms.MenuItem
     $ShowLog.Enabled = $true
     $ShowLog.Text = "Show Log"
     $ShowLog.Add_Click({Show-SpiritboxLog})
     $NotifyIcon.ContextMenu.MenuItems.AddRange($ShowLog)
 
-    # stop Spiritbox menu item
+    # Menu Item 3: Stop Spiritbox
     $StopSpiritbox = New-Object System.Windows.Forms.MenuItem
     $StopSpiritbox.Text = "Stop Spiritbox"
     $StopSpiritbox.Add_Click({$NotifyIcon.Dispose(); Stop-Process $pid})
     $NotifyIcon.ContextMenu.MenuItems.AddRange($StopSpiritbox)
 
-    # show Spiritbox form and system tray icon
+    # Show System Tray Icon and Form
     $NotifyIcon.Visible = $true
     Show-SpiritboxForm
     $ApplicationContext = New-Object System.Windows.Forms.ApplicationContext
