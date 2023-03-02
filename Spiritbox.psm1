@@ -128,7 +128,7 @@ filter New-SpiritboxReport {
     # Report
     $Report = [ordered]@{}
     $ReportHasNoErrors = $true
-    # TODO: add logic to handle DataGridView cells (observer type, indicator type, indicator values)
+
     $Form = $input.Controls | Where-Object { ($_ -isnot [System.Windows.Forms.Label]) -and ($_ -isnot [System.Windows.Forms.Button]) }
 
     # combine date and time into an Elastic-friendly @timestamp value
@@ -140,6 +140,15 @@ filter New-SpiritboxReport {
     # add the Location, Organization, and Activity observed to the report
     $Form | Where-Object { $_.Name -in ("geo.name", "organization.name", "threat.tactic.name", "observer.type") } | ForEach-Object { $Report.Add($_.Name, $_.Text) }
 
+    # TODO: add logic to handle DataGridView cells (observer type, indicator type, indicator values)
+    ($Form | Where-Object { $_ -is [System.Windows.Forms.DataGridView] }).Rows |
+    ForEach-Object {
+        $ObserverType = $_.Cells | Where-Object { $_.OwningColumn.Name -eq "Observer Type" } | Select-Object -Property FormattedValue
+        $IndicatorType = $_.Cells | Where-Object { $_.OwningColumn.Name -eq "Indicator Type" } | Select-Object -Property FormattedValue
+        $IndicatorValue = $_.Cells | Where-Object { $_.OwningColumn.Name -eq "Indicator Value" } | Select-Object -Property FormattedValue
+        $ObserverType, $IndicatorType, $IndicatorValue | Out-File Foo.txt
+    }
+    <#
     # add the Attacker IP Address observed to the report
     $AttackerIPAddress = $Form | Where-Object { $_.Name -eq "source.ip" }
     if ($AttackerIPAddress.Text | Test-IPAddress) {
@@ -169,6 +178,7 @@ filter New-SpiritboxReport {
         Write-SpiritboxEventLog -Prefix ERROR -Message $Message
         Show-SpiritboxError -Message $Message
     } 
+    #>
 
     # add the Actions Taken to the report
     $Form | Where-Object { $_.Name -eq "threat.response.description" } | ForEach-Object { $Report.Add($_.Name, $_.Text) }
