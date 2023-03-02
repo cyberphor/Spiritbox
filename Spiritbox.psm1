@@ -125,29 +125,51 @@ function Reset-SpiritboxForm {
 }
 
 filter New-SpiritboxReport {
+    # TODO: https://www.elastic.co/guide/en/ecs/current/ecs-threat-usage.html
     # Report
     $Report = [ordered]@{}
     $ReportHasNoErrors = $true
 
-    $Form = $input.Controls | Where-Object { ($_ -isnot [System.Windows.Forms.Label]) -and ($_ -isnot [System.Windows.Forms.Button]) }
+    # Date
+    $Date = $input.Controls | 
+    Where-Object { ($_ -is [System.Windows.Forms.DateTimePicker]) -and ($_.Name -eq "date") } |
+    Select-Object -ExpandProperty Text
 
-    # combine date and time into an Elastic-friendly @timestamp value
-    $Date = $Form | Where-Object { $_.Name -eq "date" } | Select-Object -ExpandProperty Text
-    $Time = $Form | Where-Object { $_.Name -eq "time" } | Select-Object -ExpandProperty Text  
+    # Time
+    $Time = $input.Controls | 
+    Where-Object { ($_ -is [System.Windows.Forms.DateTimePicker]) -and ($_.Name -eq "time") } |
+    Select-Object -ExpandProperty Text
+
+    # Combine Date and Time into an Elastic-friendly @timestamp value
     $Timestamp = $Date + "T" + $Time + ".000Z"
     $Report.Add("threat.indicator.last_seen", $Timestamp)
 
-    # add the Location, Organization, and Activity observed to the report
-    $Form | Where-Object { $_.Name -in ("geo.name", "organization.name", "threat.tactic.name", "observer.type") } | ForEach-Object { $Report.Add($_.Name, $_.Text) }
+    # Add Location, Organization, and Activity to the report
+    $input.Controls | 
+    Where-Object { $_.Name -in ("geo.name", "organization.name", "threat.tactic.name", "observer.type") } | 
+    ForEach-Object { $Report.Add($_.Name, $_.Text) }
 
     # TODO: add logic to handle DataGridView cells (observer type, indicator type, indicator values)
-    ($Form | Where-Object { $_ -is [System.Windows.Forms.DataGridView] }).Rows |
+    $input.Controls |
+    Where-Object { $_ -is [System.Windows.Forms.DataGridView] } |
+    Select-Object -Property Rows |
     ForEach-Object {
-        $ObserverType = $_.Cells | Where-Object { $_.OwningColumn.Name -eq "Observer Type" } | Select-Object -Property FormattedValue
-        $IndicatorType = $_.Cells | Where-Object { $_.OwningColumn.Name -eq "Indicator Type" } | Select-Object -Property FormattedValue
-        $IndicatorValue = $_.Cells | Where-Object { $_.OwningColumn.Name -eq "Indicator Value" } | Select-Object -Property FormattedValue
-        $ObserverType, $IndicatorType, $IndicatorValue | Out-File Foo.txt
+        $ObserverType = $_.Cells | 
+        Where-Object { $_.OwningColumn.Name -eq "Observer Type" } | 
+        Select-Object -Property FormattedValue
+        $Report.Add("observer.type", $ObserverType)
+
+        $IndicatorType = $_.Cells | 
+        Where-Object { $_.OwningColumn.Name -eq "Indicator Type" } | 
+        Select-Object -Property FormattedValue
+        $Report.Add("threat.indicator.type", $ObserverType)
+        
+        $IndicatorValue = $_.Cells | 
+        Where-Object { $_.OwningColumn.Name -eq "Indicator Value" } | 
+        Select-Object -Property FormattedValue
+        $Report.Add("threat.indicator.type", $ObserverType)
     }
+
     <#
     # add the Attacker IP Address observed to the report
     $AttackerIPAddress = $Form | Where-Object { $_.Name -eq "source.ip" }
@@ -181,7 +203,9 @@ filter New-SpiritboxReport {
     #>
 
     # add the Actions Taken to the report
-    $Form | Where-Object { $_.Name -eq "threat.response.description" } | ForEach-Object { $Report.Add($_.Name, $_.Text) }
+    $input.Controls | 
+    Where-Object { $_.Name -eq "threat.response.description" } | 
+    ForEach-Object { $Report.Add($_.Name, $_.Text) }
 
     if ($ReportHasNoErrors) {
         $Report = $Report | ConvertTo-Json -Compress
