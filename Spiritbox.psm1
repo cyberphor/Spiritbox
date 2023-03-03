@@ -48,7 +48,7 @@ filter Test-IPAddress {
 }
 
 filter Submit-SpiritboxReport {
-    $Body = $input -join "," # convert ArrayListEnumeratorSimple to a String
+    $Body = $input -join "," # Converts ArrayListEnumeratorSimple to String
     if ($Body -ne $false) {
         # Progress Bar Form
         $Subscribers = $Config.Subscribers
@@ -119,34 +119,32 @@ function Reset-SpiritboxForm {
             $_.SelectedIndex = 0
         } elseif ($_ -is [System.Windows.Forms.TextBox]) {
             $_.Clear()
+        # TODO: add logic to clear DataGridView cells
         }
     }
     $Form.Refresh()
 }
 
 filter New-SpiritboxReport {
-    # TODO: https://www.elastic.co/guide/en/ecs/current/ecs-threat-usage.html
     # Report
     $Report = [ordered]@{}
     $ReportHasNoErrors = $true
 
-    # Date
-    $Date = $input.Controls | 
-    Where-Object { ($_ -is [System.Windows.Forms.DateTimePicker]) -and ($_.Name -eq "date") } |
-    Select-Object -ExpandProperty Text
+    # TODO: mirror log examples provided in link below 
+    # - https://www.elastic.co/guide/en/ecs/current/ecs-threat-usage.html
 
-    # Time
-    $Time = $input.Controls | 
-    Where-Object { ($_ -is [System.Windows.Forms.DateTimePicker]) -and ($_.Name -eq "time") } |
-    Select-Object -ExpandProperty Text
+    # Troubleshooting
+    $input.Controls | Out-File "debug.log"
 
     # Combine Date and Time into an Elastic-friendly @timestamp value
+    $Date = ($input.Controls | Where-Object { ($_ -is [System.Windows.Forms.DateTimePicker]) -and ($_.Name -eq "date") }).Text
+    $Time = ($input.Controls | Where-Object { ($_ -is [System.Windows.Forms.DateTimePicker]) -and ($_.Name -eq "time") }).Text
     $Timestamp = $Date + "T" + $Time + ".000Z"
     $Report.Add("threat.indicator.last_seen", $Timestamp)
 
-    # Add Location, Organization, and Activity to the report
+    # Location, Organization, Activity
     $input.Controls | 
-    Where-Object { $_.Name -in ("geo.name", "organization.name", "threat.tactic.name", "observer.type") } | 
+    Where-Object { ($_ -is [System.Windows.Forms.ComboBox]) }
     ForEach-Object { $Report.Add($_.Name, $_.Text) }
 
     # TODO: add logic to handle DataGridView cells (observer type, indicator type, indicator values)
@@ -162,12 +160,12 @@ filter New-SpiritboxReport {
         $IndicatorType = $_.Cells | 
         Where-Object { $_.OwningColumn.Name -eq "Indicator Type" } | 
         Select-Object -Property FormattedValue
-        $Report.Add("threat.indicator.type", $ObserverType)
+        $Report.Add("threat.indicator.type", $IndicatorType)
         
         $IndicatorValue = $_.Cells | 
         Where-Object { $_.OwningColumn.Name -eq "Indicator Value" } | 
         Select-Object -Property FormattedValue
-        $Report.Add("threat.indicator.type", $ObserverType)
+        $Report.Add("threat.indicator.value", $IndicatorValue)
     }
 
     <#
@@ -185,28 +183,15 @@ filter New-SpiritboxReport {
         Write-SpiritboxEventLog -Prefix ERROR -Message $Message
         Show-SpiritboxError -Message $Message
     }
-    
-    # add the Victim IP Address observed to the report
-    $VictimIPAddress = $Form | Where-Object { $_.Name -eq "destination.ip" }
-    if ($VictimIPAddress.Text | Test-IPAddress) {
-        $Report.Add($VictimIPAddress.Name, $VictimIPAddress.Text)
-    } else {
-        $ReportHasNoErrors = $false
-        if ($VictimIPAddress.Text -eq "") {
-            $Message = 'No IP address was specified for the "Victim IP Address" field.'    
-        } else {
-            $Message = "An invalid IP address was specified: " + $VictimIPAddress.Text
-        }
-        Write-SpiritboxEventLog -Prefix ERROR -Message $Message
-        Show-SpiritboxError -Message $Message
-    } 
     #>
 
-    # add the Actions Taken to the report
+    # Actions Taken
     $input.Controls | 
-    Where-Object { $_.Name -eq "threat.response.description" } | 
+    Where-Object { ($_ -is [System.Windows.Forms.TextBox]) -and ($_.Name -eq "threat.response.description") } | 
     ForEach-Object { $Report.Add($_.Name, $_.Text) }
 
+    $Report | ConvertTo-Json | Out-Host
+    # Return Report
     if ($ReportHasNoErrors) {
         $Report = $Report | ConvertTo-Json -Compress
         Write-SpiritboxEventLog -Prefix INFORMATIONAL -Message $Report
@@ -319,7 +304,7 @@ function Show-SpiritboxForm {
     $ObserverTypesColumn.Name = "Observer Type"
     $ObserverTypesColumn.DataSource = $IndicatorTypes
     $ObserverTypesColumn.DefaultCellStyle.NullValue = $ObserverTypes[0]
-    $IndicatorsDataGridView.Columns.Add($ObserverTypesColumn)
+    $IndicatorsDataGridView.Columns.Add($ObserverTypesColumn) | Out-Null # Out-Null is used so no output is returned during the add
 
     # Indicators DataGridView: Indicator Types Column
     $IndicatorTypes = $Config.Indicators.IndicatorType
@@ -327,14 +312,14 @@ function Show-SpiritboxForm {
     $IndicatorTypesColumn.Name = "Indicator Type"
     $IndicatorTypesColumn.DataSource = $IndicatorTypes
     $IndicatorTypesColumn.DefaultCellStyle.NullValue = $IndicatorTypes[0]
-    $IndicatorsDataGridView.Columns.Add($IndicatorTypesColumn)
+    $IndicatorsDataGridView.Columns.Add($IndicatorTypesColumn) | Out-Null # Out-Null is used so no output is returned during the add
     # TODO: add ability to copy/paste from a spreadsheet
 
     # Indicators DataGridView: Indicator Values Column
     $IndicatorValues = $Config.Indicators.ValueType
     $IndicatorValuesColumn = New-Object System.Windows.Forms.DataGridViewTextBoxColumn
     $IndicatorValuesColumn.Name = "Indicator Value"
-    $IndicatorsDataGridView.Columns.Add($IndicatorValuesColumn)
+    $IndicatorsDataGridView.Columns.Add($IndicatorValuesColumn) | Out-Null # Out-Null is used so no output is returned during the add
     $IndicatorsDataGridView.RowCount = 10
     $Form.Controls.Add($IndicatorsDataGridView)
 
@@ -377,6 +362,10 @@ function Show-SpiritboxForm {
 }
 
 function Start-Spiritbox {
+    # TODO: open CLI > import > start > a child process is created and spiritbox is added to system tray
+    # Start-Process -WindowStyle Hidden powershell.exe "Import-Module spiritbox; Start-Spiritbox"
+    # https://www.systanddeploy.com/2018/12/create-your-own-powershell.html
+
     # System Tray Icon
     $NotifyIcon = New-Object System.Windows.Forms.NotifyIcon
     $NotifyIcon.Text = "Spiritbox"
