@@ -20,13 +20,13 @@ function Show-SpiritboxLog {
 
 function Write-SpiritboxEventLog {
     Param(
-        [Parameter(Mandatory)][ValidateSet("DEBUG","INFORMATIONAL","NOTICE","WARNING","ERROR","CRITICAL","ALERT","EMERGENCY")]$Prefix,
+        [Parameter(Mandatory)][ValidateSet("DEBUG","INFORMATIONAL","NOTICE","WARNING","ERROR","CRITICAL","ALERT","EMERGENCY")]$SeverityLevel,
         [Parameter(Mandatory)][string]$Message
     )
     $Date = Get-Date
     $Time = $Date.ToString("yyyy-MM-ddTHH:mm:ss.fffZ") 
     $SpiritboxEventLog = "spiritbox-" + $Date.ToString("yyyy-MM-dd") + ".log"
-    $SpiritboxEvent = $Time, $Prefix, $Message | ForEach-Object { "[" + $_ + "]" }
+    $SpiritboxEvent = $Time, $SeverityLevel, $Message | ForEach-Object { "[" + $_ + "]" }
     $SpiritboxEvent -join " " | Out-File -Append -FilePath $SpiritboxEventLog
 }
 
@@ -34,14 +34,14 @@ function Show-SpiritboxError {
     Param([string]$Message)
     # TODO: add Spiritbox icon and make "Error" the label inside the dialog box
     $Button = [System.Windows.Forms.MessageBoxButtons]::OK
-    $Icon = [System.Windows.Forms.MessageBoxIcon]::None
+    $Icon = [System.Windows.Forms.MessageBoxIcon]::Error
     [System.Windows.Forms.MessageBox]::Show($Message, "Error", $Button, $Icon) | Out-Null
 }
 
-filter Test-IPAddress {
-    $Address = [string]$input
+function Test-IPAddress {
+    Param([string]$IPAddress)
     try {
-        return $Address -match ($PSObject = [ipaddress]$Address)
+        return $IPAddress -match ($PSObject = [ipaddress]$IPAddress)
     } catch {
         return $false
     }
@@ -49,7 +49,7 @@ filter Test-IPAddress {
 
 filter Submit-SpiritboxReport {
     $Body = $input -join "," # Converts ArrayListEnumeratorSimple to String
-    if ($Body -ne $false) {
+    if ($Body -ne $false) { # TODO: remove pipeline check
         # Progress Bar Form
         $Subscribers = $Config.Subscribers
         $ProgressBarForm = New-Object System.Windows.Forms.Form
@@ -80,25 +80,25 @@ filter Submit-SpiritboxReport {
         $Subscribers |
         ForEach-Object {
             $ProgressBarLabel.Text = "Notifying: " + $_.Name
-            Write-SpiritboxEventLog -Prefix INFORMATIONAL -Message $ProgressBarLabel.Text
+            Write-SpiritboxEventLog -SeverityLevel INFORMATIONAL -Message $ProgressBarLabel.Text
             $ProgressBarForm.Refresh()
             Start-Sleep -Seconds 1
             try {
                 $Uri = "http://" + $_.ip + ":" + $_.port
-                $SubscriberResponse = Invoke-RestMethod -Method POST -Uri $Uri -ContentType "application/json" -Body $Body
+                #$SubscriberResponse = Invoke-RestMethod -Method POST -Uri $Uri -ContentType "application/json" -Body $Body
                 $Seconds = 1
-                Write-SpiritboxEventLog -Prefix INFORMATIONAL -Message $SubscriberResponse
+                Write-SpiritboxEventLog -SeverityLevel INFORMATIONAL -Message $SubscriberResponse
             } catch {
                 $SubscriberResponse = $_
                 $Seconds = 3
-                Write-SpiritboxEventLog -Prefix ERROR -Message $SubscriberResponse
+                Write-SpiritboxEventLog -SeverityLevel ERROR -Message $SubscriberResponse
             }
             $i++
             [int]$Percent = ($i / $Subscribers.count) * 100
             $ProgressBar.Value = $Percent
             $ProgressBarLabel.Text = "Response: " + $SubscriberResponse
             $ProgressBarForm.Refresh()
-            Start-Sleep -Seconds $Seconds
+            #Start-Sleep -Seconds $Seconds
         }
         # TODO: add Cancel button to interrupt progress
         $ProgressBarForm.Close()
@@ -125,78 +125,68 @@ function Reset-SpiritboxForm {
     $Form.Refresh()
 }
 
-filter New-SpiritboxReport {
+function New-SpiritboxReport {
+    Param([System.Windows.Forms.Form]$Form)
+
     # Report
-    $Report = [ordered]@{}
+    $ReportDetails = [ordered]@{}
     $ReportHasNoErrors = $true
 
     # TODO: mirror log examples provided in link below 
     # - https://www.elastic.co/guide/en/ecs/current/ecs-threat-usage.html
 
-    # Troubleshooting
-    $input.Controls | Out-File "debug.log"
-
     # Combine Date and Time into an Elastic-friendly @timestamp value
-    $Date = ($input.Controls | Where-Object { ($_ -is [System.Windows.Forms.DateTimePicker]) -and ($_.Name -eq "date") }).Text
-    $Time = ($input.Controls | Where-Object { ($_ -is [System.Windows.Forms.DateTimePicker]) -and ($_.Name -eq "time") }).Text
+    $Date = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.DateTimePicker]) -and ($_.Name -eq "date") }).Text
+    $Time = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.DateTimePicker]) -and ($_.Name -eq "time") }).Text
     $Timestamp = $Date + "T" + $Time + ".000Z"
-    $Report.Add("threat.indicator.last_seen", $Timestamp)
+    $ReportDetails.Add("threat.indicator.last_seen", $Timestamp)
 
     # Location, Organization, Activity
-    $input.Controls | 
-    Where-Object { ($_ -is [System.Windows.Forms.ComboBox]) }
-    ForEach-Object { $Report.Add($_.Name, $_.Text) }
-
-    # TODO: add logic to handle DataGridView cells (observer type, indicator type, indicator values)
-    $input.Controls |
-    Where-Object { $_ -is [System.Windows.Forms.DataGridView] } |
-    Select-Object -Property Rows |
-    ForEach-Object {
-        $ObserverType = $_.Cells | 
-        Where-Object { $_.OwningColumn.Name -eq "Observer Type" } | 
-        Select-Object -Property FormattedValue
-        $Report.Add("observer.type", $ObserverType)
-
-        $IndicatorType = $_.Cells | 
-        Where-Object { $_.OwningColumn.Name -eq "Indicator Type" } | 
-        Select-Object -Property FormattedValue
-        $Report.Add("threat.indicator.type", $IndicatorType)
-        
-        $IndicatorValue = $_.Cells | 
-        Where-Object { $_.OwningColumn.Name -eq "Indicator Value" } | 
-        Select-Object -Property FormattedValue
-        $Report.Add("threat.indicator.value", $IndicatorValue)
-    }
-
-    <#
-    # add the Attacker IP Address observed to the report
-    $AttackerIPAddress = $Form | Where-Object { $_.Name -eq "source.ip" }
-    if ($AttackerIPAddress.Text | Test-IPAddress) {
-        $Report.Add($AttackerIPAddress.Name, $AttackerIPAddress.Text)
-    } else {
-        $ReportHasNoErrors = $false
-        if ($AttackerIPAddress.Text -eq "") {
-            $Message = 'No IP address was specified for the "Attacker IP Address" field.'
-        } else {
-            $Message = "An invalid IP address was specified: " + $AttackerIPAddress.Text
-        }
-        Write-SpiritboxEventLog -Prefix ERROR -Message $Message
-        Show-SpiritboxError -Message $Message
-    }
-    #>
+    $Form.Controls | Where-Object { $_ -is [System.Windows.Forms.ComboBox] } |  
+    ForEach-Object { $ReportDetails.Add($_.Name, $_.Text) }
 
     # Actions Taken
-    $input.Controls | 
-    Where-Object { ($_ -is [System.Windows.Forms.TextBox]) -and ($_.Name -eq "threat.response.description") } | 
-    ForEach-Object { $Report.Add($_.Name, $_.Text) }
+    $Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.TextBox]) -and ($_.Name -eq "threat.response.description") } | 
+    ForEach-Object { $ReportDetails.Add($_.Name, $_.Text) }
 
-    $Report | ConvertTo-Json | Out-Host
+    # Observer Type, Indicator Type, Indicator Values
+    $Indicators = New-Object System.Collections.Generic.List[System.Collections.Hashtable]
+    ($Form.Controls | Where-Object { $_ -is [System.Windows.Forms.DataGridView] }).Rows | 
+    ForEach-Object {
+        # TODO: add logic to check if IndicatorValue is of IndicatorType
+        # TODO: add logic to map IndicatorType to threat.indicator.ip, threat.indicator.url, etc. 
+        # TODO: ensure at least one indicator value is given
+        $Indicator = [ordered]@{}
+        $ObserverType = $_.Cells[0].FormattedValue
+        $IndicatorType = $_.Cells[1].FormattedValue
+        $IndicatorValue = $_.Cells[2].FormattedValue
+
+        if (-not [string]::IsNullorEmpty($IndicatorValue)) {
+            $Indicator.Add("observer.type", $ObserverType)
+            $Indicator.Add("indicator.type", $IndicatorType)
+            if ($IndicatorType -eq "ipv4-addr") {
+                if (Test-IPAddress($IndicatorValue)) {
+                    $Indicator.Add("indicator.value", $IndicatorValue)
+                } else {
+                    $ReportHasNoErrors = $false
+                    $Message = "An invalid IP address was specified: " + $IndicatorValue
+                    Write-SpiritboxEventLog -SeverityLevel ERROR -Message $Message
+                    Show-SpiritboxError -Message $Message
+                }
+            }
+            $Indicators.Add($Indicator)
+        }
+    }
+    $ReportDetails.Add("indicators", $Indicators)
+
     # Return Report
+    $Report = $ReportDetails | ConvertTo-Json
+    $Report | Out-Host
     if ($ReportHasNoErrors) {
-        $Report = $Report | ConvertTo-Json -Compress
-        Write-SpiritboxEventLog -Prefix INFORMATIONAL -Message $Report
+        Write-SpiritboxEventLog -SeverityLevel INFORMATIONAL -Message $Report
         return $Report
     } else {
+        Write-SpiritboxEventLog -SeverityLevel ERROR -Message $Report
         return $false
     }
 }
@@ -344,7 +334,7 @@ function Show-SpiritboxForm {
     $SubmitButton.Size = "185,25"
     $SubmitButton.Location = "10,630"
     $SubmitButton.Add_Click({
-        $Form | New-SpiritboxReport | Submit-SpiritboxReport
+        New-SpiritboxReport -Form $Form | Submit-SpiritboxReport 
         Reset-SpiritboxForm -Form $Form
     })
     $Form.Controls.Add($SubmitButton)
@@ -354,7 +344,9 @@ function Show-SpiritboxForm {
     $ResetButton.Text = "Reset"
     $ResetButton.Size = "200,25"
     $ResetButton.Location = "190,630"
-    $ResetButton.Add_Click({Reset-SpiritboxForm -Form $Form}) 
+    $ResetButton.Add_Click({
+        Reset-SpiritboxForm -Form $Form
+    }) 
     $Form.Controls.Add($ResetButton)
 
     # Show Form
