@@ -128,42 +128,49 @@ function Reset-SpiritboxForm {
 function New-SpiritboxReport {
     Param([System.Windows.Forms.Form]$Form)
 
-    # Report
-    $ReportDetails = [ordered]@{}
-    $ReportHasNoErrors = $true
-
     # TODO: mirror log examples provided in link below 
     # - https://www.elastic.co/guide/en/ecs/current/ecs-threat-usage.html
 
-    # Combine Date and Time into an Elastic-friendly @timestamp value
+    # Report
+    $ReportDetails = [ordered]@{}
+    $Threat = [ordered]@{}
+    $Indicators = New-Object System.Collections.Generic.List[System.Collections.Hashtable]
+    $ReportHasNoErrors = $true
+
+    # Organization
+    $Organization = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.ComboBox]) -and ($_.Name -eq "organization.name") })
+
+    # Location
+    $Location = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.ComboBox]) -and ($_.Name -eq "geo.name") })
+
+    # Last Seen
     $Date = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.DateTimePicker]) -and ($_.Name -eq "date") }).Text
     $Time = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.DateTimePicker]) -and ($_.Name -eq "time") }).Text
-    $Timestamp = $Date + "T" + $Time + ".000Z"
-    $ReportDetails.Add("threat.indicator.last_seen", $Timestamp)
+    $LastSeen = $Date + "T" + $Time + ".000Z"
 
-    # Location, Organization, Activity
-    $Form.Controls | Where-Object { $_ -is [System.Windows.Forms.ComboBox] } |  
-    ForEach-Object { $ReportDetails.Add($_.Name, $_.Text) }
+    # Activity
+    $Activity = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.ComboBox]) -and ($_.Name -eq "tactic.name") })
 
     # Actions Taken
-    $Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.TextBox]) -and ($_.Name -eq "threat.response.description") } | 
-    ForEach-Object { $ReportDetails.Add($_.Name, $_.Text) }
+    $ActionsTaken = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.TextBox]) -and ($_.Name -eq "response.description") })
 
     # Observer Type, Indicator Type, Indicator Values
-    $Indicators = New-Object System.Collections.Generic.List[System.Collections.Hashtable]
     ($Form.Controls | Where-Object { $_ -is [System.Windows.Forms.DataGridView] }).Rows | 
     ForEach-Object {
         # TODO: add logic to check if IndicatorValue is of IndicatorType
         # TODO: add logic to map IndicatorType to threat.indicator.ip, threat.indicator.url, etc. 
         # TODO: ensure at least one indicator value is given
         $Indicator = [ordered]@{}
+        $Indicator.Add("last_seen", $LastSeen)
+        $Indicator.Add($Activity.Name, $Activity.Text)
+        $Indicator.Add($ActionsTaken.Name, $ActionsTaken.Text)
+
         $ObserverType = $_.Cells[0].FormattedValue
         $IndicatorType = $_.Cells[1].FormattedValue
         $IndicatorValue = $_.Cells[2].FormattedValue
-
         if (-not [string]::IsNullorEmpty($IndicatorValue)) {
             $Indicator.Add("observer.type", $ObserverType)
-            $Indicator.Add("indicator.type", $IndicatorType)
+            $Indicator.Add("type", $IndicatorType)
             if ($IndicatorType -eq "ipv4-addr") {
                 if (Test-IPAddress($IndicatorValue)) {
                     $Indicator.Add("indicator.value", $IndicatorValue)
@@ -174,14 +181,19 @@ function New-SpiritboxReport {
                     Show-SpiritboxError -Message $Message
                 }
             }
-            $Indicators.Add($Indicator)
+            $Indicators.Add("indicator", $Indicator)
         }
     }
-    $ReportDetails.Add("indicators", $Indicators)
+
+    $ReportDetails.Add($Organization.Name, $Organization.Text)
+    $ReportDetails.Add($Location.Name, $Location.Text)
+    $Threat.Add("indicators", $Indicators)
+    $ReportDetails.Add("threat", $Threat)
 
     # Return Report
     $Report = $ReportDetails | ConvertTo-Json
     $Report | Out-Host
+    <#
     if ($ReportHasNoErrors) {
         Write-SpiritboxEventLog -SeverityLevel INFORMATIONAL -Message $Report
         return $Report
@@ -189,6 +201,7 @@ function New-SpiritboxReport {
         Write-SpiritboxEventLog -SeverityLevel ERROR -Message $Report
         return $false
     }
+    #>
 }
 
 function Show-SpiritboxForm {
@@ -271,7 +284,7 @@ function Show-SpiritboxForm {
 
     # Activity Field
     $ActivityField = New-Object System.Windows.Forms.ComboBox
-    $ActivityField.Name = "threat.tactic.name"
+    $ActivityField.Name = "tactic.name"
     $ActivityField.Size = "260,25"
     $ActivityField.Location = "130,110"
     $Config.Activities | ForEach-Object {[void]$ActivityField.Items.Add($_)} # void is used so no output is returned during each add
@@ -321,7 +334,7 @@ function Show-SpiritboxForm {
 
     # Actions Taken Field
     $ActionsTakenField = New-Object System.Windows.Forms.TextBox
-    $ActionsTakenField.Name = "threat.response.description"
+    $ActionsTakenField.Name = "response.description"
     $ActionsTakenField.Size = "380,200"
     $ActionsTakenField.Location = "10,425"
     $ActionsTakenField.Multiline = $true
