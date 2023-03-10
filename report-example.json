@@ -1,0 +1,45 @@
+{
+  "@timestamp": "2023-03-10T11:09:23.000Z",
+  "event": {
+      "kind": "enrichment", 
+      "category": "threat", 
+      "type": "indicator"
+  },
+  "threat": {
+    "marking": {
+        "tlp": "GREEN"
+      },
+      "feed": {
+        "name": "Spiritbox",
+        "reference": "https://github.com/cyberphor/Spiritbox"
+      },
+      "indicator": { 
+        "provider": "Weyland-Yutani Corp",
+        "last_seen": "2023-03-03T17:25:47.000Z",
+        "type": [
+          "ipv4-addr",
+          "port",
+          "domain-name",
+          "email-addr"
+        ],
+        "ip": [
+          "1.2.3.4"
+        ],
+        "port": 443,
+        "domain": [
+          "malicious.evil"
+        ],
+        "email.address": [
+          "phish@malicious.evil"
+        ]
+      }
+  },
+  "related": { 
+      "ip": [
+          "1.2.3.4"
+      ],
+      "hosts": [
+        "malicious.evil"
+    ]
+  }
+}

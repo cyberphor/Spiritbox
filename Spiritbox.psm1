@@ -134,7 +134,7 @@ function New-SpiritboxReport {
     # Report
     $ReportDetails = [ordered]@{}
     $Threat = [ordered]@{}
-    $Indicators = New-Object System.Collections.Generic.List[System.Collections.Hashtable]
+    $Indicators = @()
     $ReportHasNoErrors = $true
 
     # Organization
@@ -181,7 +181,8 @@ function New-SpiritboxReport {
                     Show-SpiritboxError -Message $Message
                 }
             }
-            $Indicators.Add("indicator", $Indicator)
+            $Indicators += $Indicator
+            # https://stackoverflow.com/questions/30929633/nested-arrays-and-convertto-json
         }
     }
 
