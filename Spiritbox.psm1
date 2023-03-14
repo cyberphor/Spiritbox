@@ -85,7 +85,7 @@ filter Submit-SpiritboxReport {
             Start-Sleep -Seconds 1
             try {
                 $Uri = "http://" + $_.ip + ":" + $_.port
-                #$SubscriberResponse = Invoke-RestMethod -Method POST -Uri $Uri -ContentType "application/json" -Body $Body
+                $SubscriberResponse = Invoke-RestMethod -Method POST -Uri $Uri -ContentType "application/json" -Body $Body
                 $Seconds = 1
                 Write-SpiritboxEventLog -SeverityLevel INFORMATIONAL -Message $SubscriberResponse
             } catch {
@@ -98,7 +98,7 @@ filter Submit-SpiritboxReport {
             $ProgressBar.Value = $Percent
             $ProgressBarLabel.Text = "Response: " + $SubscriberResponse
             $ProgressBarForm.Refresh()
-            #Start-Sleep -Seconds $Seconds
+            Start-Sleep -Seconds $Seconds
         }
         # TODO: add Cancel button to interrupt progress
         $ProgressBarForm.Close()
@@ -128,43 +128,63 @@ function Reset-SpiritboxForm {
 function New-SpiritboxReport {
     Param([System.Windows.Forms.Form]$Form)
 
-    # TODO: mirror log examples provided in link below 
-    # - https://www.elastic.co/guide/en/ecs/current/ecs-threat-usage.html
-
-    # Report
+    # Declare a Report object
     $ReportDetails = [ordered]@{}
-    $Threat = [ordered]@{}
-    $Indicators = @()
     $ReportHasNoErrors = $true
 
-    # Organization
-    $Organization = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.ComboBox]) -and ($_.Name -eq "organization.name") })
+    # Add Event field to Report
+    $Event = [ordered]@{}
+    $Event.Add("kind", "enrichment")
+    $Event.Add("category", "threat")
+    $Event.Add("type", "indicator")
+    $ReportDetails.Add("event", $Event)
 
-    # Location
-    $Location = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.ComboBox]) -and ($_.Name -eq "geo.name") })
+    # Add Location field to Report
+    $Location = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.ComboBox]) -and ($_.Name -eq "location") })
+    $ReportDetails.Add("geo.name", $Location.Text)
+    # TODO: add "grid coordinates" option to config
 
-    # Last Seen
+    # Declare Threat field
+    $Threat = [ordered]@{}
+
+    # Add Threat Marking field to Threat field
+    $Marking = @{"tlp" = "GREEN"}
+    $Threat.Add("marking", $Marking)
+    
+    # Add Threat Feed field to Threat field
+    $Feed = [ordered]@{}
+    $Feed.Add("name", "Spiritbox")
+    $Feed.Add("reference", "https://github.com/cyberphor/Spiritbox")
+    $Threat.Add("feed", $Feed)
+
+    # Add Observation field to Threat field
+    $Observation = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.ComboBox]) -and ($_.Name -eq "observation") })
+    $Tactic = [ordered]@{"name" = $Observation.Text}
+    $Threat.Add("tactic", $Tactic)
+
+    # Declare Indicator field
+    $Indicator = @()
+
+    # Add Organization field to Indicator field
+    $Organization = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.ComboBox]) -and ($_.Name -eq "organization") })
+    $Indicator.Add("provider", $Organization.Text)
+
+    # Add Last Seen field to Indicator field
     $Date = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.DateTimePicker]) -and ($_.Name -eq "date") }).Text
     $Time = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.DateTimePicker]) -and ($_.Name -eq "time") }).Text
     $LastSeen = $Date + "T" + $Time + ".000Z"
-
-    # Activity
-    $Activity = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.ComboBox]) -and ($_.Name -eq "tactic.name") })
-
-    # Actions Taken
-    $ActionsTaken = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.TextBox]) -and ($_.Name -eq "response.description") })
+    $Indicator.Add("last_seen", $LastSeen)
 
     # Observer Type, Indicator Type, Indicator Values
+    $ObserverTypes = @()
+    $IndicatorTypes = @()
+    $IndicatorValues = @()
     ($Form.Controls | Where-Object { $_ -is [System.Windows.Forms.DataGridView] }).Rows | 
     ForEach-Object {
         # TODO: add logic to check if IndicatorValue is of IndicatorType
         # TODO: add logic to map IndicatorType to threat.indicator.ip, threat.indicator.url, etc. 
         # TODO: ensure at least one indicator value is given
         $Indicator = [ordered]@{}
-        $Indicator.Add("last_seen", $LastSeen)
-        $Indicator.Add($Activity.Name, $Activity.Text)
-        $Indicator.Add($ActionsTaken.Name, $ActionsTaken.Text)
-
         $ObserverType = $_.Cells[0].FormattedValue
         $IndicatorType = $_.Cells[1].FormattedValue
         $IndicatorValue = $_.Cells[2].FormattedValue
@@ -182,19 +202,20 @@ function New-SpiritboxReport {
                 }
             }
             $Indicators += $Indicator
-            # https://stackoverflow.com/questions/30929633/nested-arrays-and-convertto-json
         }
     }
 
-    $ReportDetails.Add($Organization.Name, $Organization.Text)
-    $ReportDetails.Add($Location.Name, $Location.Text)
-    $Threat.Add("indicators", $Indicators)
+    # Add Actions Taken field to Threat field
+    $ActionsTaken = ($Form.Controls | Where-Object { ($_ -is [System.Windows.Forms.TextBox]) -and ($_.Name -eq "response.description") })
+    $Threat.Add("response", $ActionsTaken.Text)
+
+    # Add Threat field to Report
+    $Threat.Add("indicator", $Indicator)
     $ReportDetails.Add("threat", $Threat)
 
-    # Return Report
+    # Return the Report object
     $Report = $ReportDetails | ConvertTo-Json
     $Report | Out-Host
-    <#
     if ($ReportHasNoErrors) {
         Write-SpiritboxEventLog -SeverityLevel INFORMATIONAL -Message $Report
         return $Report
@@ -202,7 +223,6 @@ function New-SpiritboxReport {
         Write-SpiritboxEventLog -SeverityLevel ERROR -Message $Report
         return $false
     }
-    #>
 }
 
 function Show-SpiritboxForm {
@@ -246,21 +266,6 @@ function Show-SpiritboxForm {
     $TimeField.CustomFormat = "HH:mm:ss"
     $TimeField.ShowUpDown = $true
     $Form.Controls.Add($TimeField)
-            
-    # Location Label
-    $LocationLabel = New-Object System.Windows.Forms.Label
-    $LocationLabel.Text = "Location"
-    $LocationLabel.Location = "10,60"
-    $Form.Controls.Add($LocationLabel)
-
-    # Location Field
-    $LocationField = New-Object System.Windows.Forms.ComboBox
-    $LocationField.Name = "geo.name"
-    $LocationField.Size = "260,25"
-    $LocationField.Location = "130,60"
-    $Config.Locations | ForEach-Object {[void]$LocationField.Items.Add($_)} # void is used so no output is returned during each add
-    $LocationField.SelectedIndex = 0
-    $Form.Controls.Add($LocationField)
 
     # Organization Label
     $OrganizationLabel = New-Object System.Windows.Forms.Label
@@ -270,27 +275,42 @@ function Show-SpiritboxForm {
 
     # Organization Field
     $OrganizationField = New-Object System.Windows.Forms.ComboBox
-    $OrganizationField.Name = "organization.name"
+    $OrganizationField.Name = "organization"
     $OrganizationField.Size = "260,25"
     $OrganizationField.Location = "130,85"
     $Config.Organizations | ForEach-Object {[void]$OrganizationField.Items.Add($_)} # void is used so no output is returned during each add
     $OrganizationField.SelectedIndex = 0
     $Form.Controls.Add($OrganizationField)
 
-    # Activity Label
-    $ActivityLabel = New-Object System.Windows.Forms.Label
-    $ActivityLabel.Text = "Activity"
-    $ActivityLabel.Location = "10,110"
-    $Form.Controls.Add($ActivityLabel)
+    # Location Label
+    $LocationLabel = New-Object System.Windows.Forms.Label
+    $LocationLabel.Text = "Location"
+    $LocationLabel.Location = "10,60"
+    $Form.Controls.Add($LocationLabel)
 
-    # Activity Field
-    $ActivityField = New-Object System.Windows.Forms.ComboBox
-    $ActivityField.Name = "tactic.name"
-    $ActivityField.Size = "260,25"
-    $ActivityField.Location = "130,110"
-    $Config.Activities | ForEach-Object {[void]$ActivityField.Items.Add($_)} # void is used so no output is returned during each add
-    $ActivityField.SelectedIndex = 0
-    $Form.Controls.Add($ActivityField)
+    # Location Field
+    $LocationField = New-Object System.Windows.Forms.ComboBox
+    $LocationField.Name = "location"
+    $LocationField.Size = "260,25"
+    $LocationField.Location = "130,60"
+    $Config.Locations | ForEach-Object {[void]$LocationField.Items.Add($_)} # void is used so no output is returned during each add
+    $LocationField.SelectedIndex = 0
+    $Form.Controls.Add($LocationField)
+
+    # Observation Label
+    $ObservationLabel = New-Object System.Windows.Forms.Label
+    $ObservationLabel.Text = "Observation"
+    $ObservationLabel.Location = "10,110"
+    $Form.Controls.Add($ObservationLabel)
+
+    # Observation Field
+    $ObservationField = New-Object System.Windows.Forms.ComboBox
+    $ObservationField.Name = "observation"
+    $ObservationField.Size = "260,25"
+    $ObservationField.Location = "130,110"
+    $Config.Activities | ForEach-Object {[void]$ObservationField.Items.Add($_)} # void is used so no output is returned during each add
+    $ObservationField.SelectedIndex = 0
+    $Form.Controls.Add($ObservationField)
 
     # Indicators DataGridView
     $IndicatorsDataGridView = New-Object System.Windows.Forms.DataGridView
@@ -320,7 +340,6 @@ function Show-SpiritboxForm {
     # TODO: add ability to copy/paste from a spreadsheet
 
     # Indicators DataGridView: Indicator Values Column
-    $IndicatorValues = $Config.Indicators.ValueType
     $IndicatorValuesColumn = New-Object System.Windows.Forms.DataGridViewTextBoxColumn
     $IndicatorValuesColumn.Name = "Indicator Value"
     $IndicatorsDataGridView.Columns.Add($IndicatorValuesColumn) | Out-Null # Out-Null is used so no output is returned during the add
