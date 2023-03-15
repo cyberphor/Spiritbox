@@ -1,11 +1,11 @@
 {
   "Subscribers": [
-    {"name": "BDE", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"}, 
-    {"name": "DIV", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"}, 
-    {"name": "Corps", "ip": "127.0.0.2", "port": "4444", "key": "1234567890"}, 
-    {"name": "NEC", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"}, 
-    {"name": "RCC", "ip": "127.0.0.1", "port": "1337", "key": "1234567890"}, 
-    {"name": "ACOIC", "ip": "127.0.0.1", "port": "4444", "key": "1234567890"}
+    {"name": "BDE", "ip": "127.0.0.1", "port": "1337", "api_key": "1234567890"}, 
+    {"name": "DIV", "ip": "127.0.0.1", "port": "1337", "api_key": "1234567890"}, 
+    {"name": "Corps", "ip": "127.0.0.2", "port": "4444", "api_key": "1234567890"}, 
+    {"name": "NEC", "ip": "127.0.0.1", "port": "1337", "api_key": "1234567890"}, 
+    {"name": "RCC", "ip": "127.0.0.1", "port": "1337", "api_key": "1234567890"}, 
+    {"name": "ACOIC", "ip": "127.0.0.1", "port": "4444", "api_key": "1234567890"}
   ],
   "Locations": [
     "Ziwa",
@@ -19,7 +19,14 @@
     "Cyberdyne Systems",
     "Evil Corp"
   ], 
-  "Activities": [
+  "ObserverTypes": [
+    "Firewall",
+    "IDS",
+    "SIEM Server",
+    "EDR Agent",
+    "Person"
+  ],
+  "ObservationTypes": [
     "Reconnaissance",
     "Initial Access",
     "Execution",
@@ -33,13 +40,6 @@
     "Command and Control",
     "Exfiltration",
     "Impact"
-  ],
-  "Sources": [
-    "Firewall",
-    "IDS",
-    "SIEM Server",
-    "EDR Agent",
-    "Person"
   ],
   "Indicators": [
     {"IndicatorType": "ipv4-addr", "ValueType": "ipv4"},
