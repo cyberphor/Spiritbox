@@ -7,19 +7,19 @@ Spiritbox is a PowerShell module and Graphical User Interface (GUI) for sending 
 Below is an example of the JSON documents created by Spiritbox. The fields may change or grow. 
 ```json
 {
-  "@timestamp": "2023-03-10T11:09:23.000Z",
   "event": {
-      "kind": "enrichment", 
-      "category": "threat", 
-      "type": "indicator"
+    "kind": "enrichment",
+    "category": "threat",
+    "type": "indicator"
   },
-  "geo": {
-    "name": "Ziwa"
+  "geo.name": "Ziwa",
+  "observer": {
+    "type": "Firewall"
   },
   "threat": {
     "marking": {
-        "tlp": "GREEN"
-      },
+      "tlp": "GREEN"
+    },
     "feed": {
       "name": "Spiritbox",
       "reference": "https://github.com/cyberphor/Spiritbox"
@@ -27,30 +27,16 @@ Below is an example of the JSON documents created by Spiritbox. The fields may c
     "tactic": {
       "name": "Reconnaissance"
     },
-    "indicator": { 
+    "indicator":  {
       "provider": "Weyland-Yutani Corp",
-      "last_seen": "2023-03-03T17:25:47.000Z",
-      "type": [
-        "ipv4-addr",
-        "port",
-        "domain-name",
-        "email-addr"
-      ],
+      "last_seen": "2023-03-16T06:38:49.000Z",
       "ip": [
         "1.2.3.4",
         "2.2.2.2",
-        "3.4.3.4"
+        "192.168.1.23"
       ],
-      "port": [
-        443
-      ],
-      "domain": [
-        "malicious.evil",
-        "malware.net"
-      ],
-      "email.address": [
-        "phisherman@malicious.evil",
-        "apt@nationstate.edu"
+      "type":  [
+        "ipv4-addr"
       ]
     },
     "response": "None"

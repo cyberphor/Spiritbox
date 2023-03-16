@@ -4,6 +4,7 @@ try {
     Add-Type -AssemblyName System.Drawing
     Add-Type -AssemblyName System.Windows.Forms
     Add-Type -AssemblyName WindowsFormsIntegration
+    # TODO: add a function to check the config for minimum requirements
     $Config = Get-Content config.json | ConvertFrom-Json
     $Icon = New-Object System.Drawing.Icon("$PSScriptRoot\ghost.ico")
 } catch {

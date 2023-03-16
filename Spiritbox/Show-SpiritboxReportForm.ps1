@@ -5,7 +5,7 @@ function Show-SpiritboxReportForm {
   $Form.MaximizeBox = $false # disable maximizing
   $Form.FormBorderStyle = "Fixed3D" # disable resizing
   $Form.Text = "Spiritbox"
-  $Form.Icon = New-Object System.Drawing.Icon("$PSScriptRoot\ghost.ico")
+  $Form.Icon = $Icon # TODO: add error handling
   $Form.StartPosition = "CenterScreen"
 
   # Date Label
@@ -99,7 +99,7 @@ function Show-SpiritboxReportForm {
   $ObserverTypes = $Config.ObserverTypes
   $ObserverTypesColumn = New-Object System.Windows.Forms.DataGridViewComboBoxColumn
   $ObserverTypesColumn.Name = "Observer Type"
-  $ObserverTypesColumn.DataSource = $IndicatorTypes
+  $ObserverTypesColumn.DataSource = $ObserverTypes
   $ObserverTypesColumn.DefaultCellStyle.NullValue = $ObserverTypes[0]
   $IndicatorsDataGridView.Columns.Add($ObserverTypesColumn) | Out-Null # Out-Null is used so no output is returned during the add
 
@@ -110,12 +110,15 @@ function Show-SpiritboxReportForm {
   $IndicatorTypesColumn.DataSource = $IndicatorTypes
   $IndicatorTypesColumn.DefaultCellStyle.NullValue = $IndicatorTypes[0]
   $IndicatorsDataGridView.Columns.Add($IndicatorTypesColumn) | Out-Null # Out-Null is used so no output is returned during the add
-  # TODO: add ability to copy/paste from a spreadsheet
+
 
   # Indicators DataGridView: Indicator Values Column
   $IndicatorValuesColumn = New-Object System.Windows.Forms.DataGridViewTextBoxColumn
   $IndicatorValuesColumn.Name = "Indicator Value"
   $IndicatorsDataGridView.Columns.Add($IndicatorValuesColumn) | Out-Null # Out-Null is used so no output is returned during the add
+  # TODO: add ability to copy/paste from a spreadsheet
+
+  # Add Indicators DataGridView to Form
   $IndicatorsDataGridView.RowCount = 10
   $Form.Controls.Add($IndicatorsDataGridView)
 
@@ -141,7 +144,7 @@ function Show-SpiritboxReportForm {
   $SubmitButton.Location = "10,630"
   $SubmitButton.Add_Click({
       New-SpiritboxReport -Form $Form | Submit-SpiritboxReport 
-      Reset-SpiritboxForm -Form $Form
+      Reset-SpiritboxReportForm -Form $Form
   })
   $Form.Controls.Add($SubmitButton)
 
@@ -151,7 +154,7 @@ function Show-SpiritboxReportForm {
   $ResetButton.Size = "200,25"
   $ResetButton.Location = "190,630"
   $ResetButton.Add_Click({
-      Reset-SpiritboxForm -Form $Form
+      Reset-SpiritboxReportForm -Form $Form
   }) 
   $Form.Controls.Add($ResetButton)
 
