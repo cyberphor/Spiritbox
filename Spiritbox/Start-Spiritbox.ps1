@@ -13,7 +13,7 @@ function Start-Spiritbox {
   $NewReport = New-Object System.Windows.Forms.MenuItem
   $NewReport.Enabled = $true
   $NewReport.Text = "New Report"
-  $NewReport.Add_Click({Show-SpiritboxForm})
+  $NewReport.Add_Click({Show-SpiritboxReportForm})
   $NotifyIcon.ContextMenu.MenuItems.AddRange($NewReport)
 
   # Menu Item 2: Show Log

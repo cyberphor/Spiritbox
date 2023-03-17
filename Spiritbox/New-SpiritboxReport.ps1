@@ -56,6 +56,7 @@ function New-SpiritboxReport {
 
   # Declare a list for each indicator type supported 
   $IpAddresses = @()
+  $FileNames = @()
   
   # Parse indicators and add values to the appropiate list declared above
   ($Form.Controls | Where-Object { $_ -is [System.Windows.Forms.DataGridView] }).Rows | 
@@ -78,6 +79,17 @@ function New-SpiritboxReport {
         }
         $IpAddresses += $IndicatorValue
       }
+
+      if ($IndicatorType -eq "file") {
+        $IndicatorValueLength = $IndicatorValue.Length
+        if ($IndicatorValueLength -gt 256) {
+          $ReportHasNoErrors = $false
+          $Message = "An invalid file name was specified. Microsoft Windows has a MAX_PATH limit of ~256 characters. Length of file name provided: $IndicatorValueLength."
+          Write-SpiritboxEventLog -SeverityLevel ERROR -Message $Message
+          Show-SpiritboxError -Message $Message
+        }
+        $FileNames += $IndicatorValue
+      }
     }
   }
 
@@ -90,6 +102,11 @@ function New-SpiritboxReport {
   if ($IpAddresses.Count -ge 0) {
     $IndicatorTypes += "ipv4-addr"
     $Indicator.Add("ip", $IpAddresses)
+  }
+
+  if ($FileNames.Count -ge 0) {
+    $IndicatorTypes += "file"
+    $Indicator.Add("file", $FileNames)
   }
 
   # Add indicator types to Indicator field
@@ -108,7 +125,7 @@ function New-SpiritboxReport {
   # Convert Report Details to JSON and return the Report
   # Depth is set to 3 to ensure deep fields like threat.indicator.ip are also treated as key/value pairs
   # ConvertTo-Json's default depth is 2
-  $Report = $ReportDetails | ConvertTo-Json -Depth 3 
+  $Report = $ReportDetails | ConvertTo-Json -Depth 3 -Compress 
   if ($ReportHasNoErrors) {
     Write-SpiritboxEventLog -SeverityLevel INFORMATIONAL -Message $Report
     return $Report
