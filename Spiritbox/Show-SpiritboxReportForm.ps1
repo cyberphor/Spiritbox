@@ -111,7 +111,6 @@ function Show-SpiritboxReportForm {
   $IndicatorTypesColumn.DefaultCellStyle.NullValue = $IndicatorTypes[0]
   $IndicatorsDataGridView.Columns.Add($IndicatorTypesColumn) | Out-Null # Out-Null is used so no output is returned during the add
 
-
   # Indicators DataGridView: Indicator Values Column
   $IndicatorValuesColumn = New-Object System.Windows.Forms.DataGridViewTextBoxColumn
   $IndicatorValuesColumn.Name = "Indicator Value"

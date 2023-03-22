@@ -19,6 +19,7 @@ try {
 . $PSScriptRoot\Spiritbox\Show-SpiritboxError.ps1
 . $PSScriptRoot\Spiritbox\Show-SpiritboxEventLog.ps1
 . $PSScriptRoot\Spiritbox\Show-SpiritboxReportForm.ps1
+. $PSScriptRoot\Spiritbox\Show-SpiritboxTrayIcon.ps1
 . $PSScriptRoot\Spiritbox\Start-Spiritbox.ps1
 . $PSScriptRoot\Spiritbox\Submit-SpiritboxReport.ps1
 . $PSScriptRoot\Spiritbox\Test-IPAddress.ps1
